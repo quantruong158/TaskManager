@@ -55,6 +55,11 @@ export class SideBarComponent implements OnChanges {
         label: 'Status Management',
         route: '/admin/status',
       },
+      {
+        icon: 'description',
+        label: 'Login Log',
+        route: '/admin/login-log',
+      },
       { icon: 'settings', label: 'System Settings', route: '/admin/settings' },
     ];
 

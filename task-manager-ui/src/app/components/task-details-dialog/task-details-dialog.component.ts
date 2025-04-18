@@ -1,4 +1,4 @@
-import { Component, Inject, Input } from '@angular/core';
+import { Component, Inject, Input, OnInit } from '@angular/core';
 import {
   FormControl,
   Validators,
@@ -6,6 +6,8 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { TaskService } from '../../core/services/task.service';
+import { UserService } from '../../core/services/user.service';
+import { User } from '../../core/models/user.model';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -40,9 +42,10 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './task-details-dialog.component.html',
   styleUrl: './task-details-dialog.component.css',
 })
-export class TaskDetailsDialogComponent {
+export class TaskDetailsDialogComponent implements OnInit {
   public task!: Task;
   public priorityLevels = ['Low', 'Medium', 'High'];
+  public users: User[] = [];
 
   public titleControl: FormControl = new FormControl('', [Validators.required]);
   public descriptionControl: FormControl = new FormControl('');
@@ -53,16 +56,32 @@ export class TaskDetailsDialogComponent {
 
   constructor(
     private taskService: TaskService,
+    private userService: UserService,
     private dialogRef: MatDialogRef<TaskDetailsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) data: Task,
     private toastr: ToastrService
   ) {
     this.task = data;
-    console.log(this.task);
     this.titleControl.setValue(this.task.title);
     this.descriptionControl.setValue(this.task.description);
     this.priorityControl.setValue(this.task.priority);
     this.assigneeControl.setValue(this.task.assignedTo);
+  }
+
+  ngOnInit() {
+    this.loadUsers();
+  }
+
+  private loadUsers() {
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.toastr.error('Error loading users', 'ERROR');
+      },
+    });
   }
 
   public editTaskForm: FormGroup = new FormGroup({
@@ -82,6 +101,10 @@ export class TaskDetailsDialogComponent {
             this.task.description = this.editTaskForm.value.description;
             this.task.priority = this.editTaskForm.value.priority;
             this.task.assignedTo = this.editTaskForm.value.assignedTo;
+            this.task.assigneeName = this.users.find(
+              (user) => user.userId === this.task.assignedTo
+            )?.name;
+
             this.toastr.success('Task updated successfully!', 'SUCCESS');
             this.dialogRef.close(this.task);
           },

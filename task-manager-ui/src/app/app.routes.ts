@@ -40,6 +40,13 @@ export const routes: Routes = [
                 './pages/admin/status-management/status-management.component'
               ).then((m) => m.StatusManagementComponent),
           },
+          {
+            path: 'login-log',
+            loadComponent: () =>
+              import('./pages/admin/login-log/login-log.component').then(
+                (m) => m.LoginLogComponent
+              ),
+          },
         ],
       },
       {

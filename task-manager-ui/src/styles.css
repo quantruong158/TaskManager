@@ -11,8 +11,12 @@ body {
   overflow: hidden;
 }
 
+.mat-column-sequenceNo {
+  flex: 0 0 5% !important;
+}
+
 .main-container {
-  padding: 20px;
+  padding: 20px 20px 0 20px;
 }
 
 .mat-destructive {

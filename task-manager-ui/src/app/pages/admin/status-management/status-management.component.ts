@@ -29,7 +29,6 @@ export class StatusManagementComponent {
   public selectedStatus: Status | null = null;
 
   public columns: ColumnDef[] = [
-    { key: 'statusId', header: 'ID', sortable: true },
     { key: 'name', header: 'Name', sortable: true },
     {
       key: 'createdAt',
@@ -63,6 +62,11 @@ export class StatusManagementComponent {
   }
 
   handleRowClick(row: Status) {
+    if (this.selectedStatus === row) {
+      this.selectedStatus = null;
+      return;
+    }
+
     this.selectedStatus = row;
   }
 

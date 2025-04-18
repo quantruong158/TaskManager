@@ -1,0 +1,21 @@
+<div class="main-container">
+  <div class="log-header">
+    <div class="left-header">
+      <h2>Login Log</h2>
+      @if (selectedUser && !isFiltered()) {
+      <button mat-button (click)="filter()">Filter</button>
+      } @if (isFiltered()) {
+      <button mat-button (click)="removeFilter()">Remove filter</button>
+      }
+    </div>
+    <div class="right-header"></div>
+  </div>
+  <main>
+    <app-generic-table
+      [data]="filteredLog()"
+      [columns]="columns"
+      (rowClick)="handleRowClick($event)"
+    >
+    </app-generic-table>
+  </main>
+</div>

@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -31,12 +32,14 @@ import { MatInputModule } from '@angular/material/input';
 export class LoginComponent {
   isLoading = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private toastr: ToastrService
+  ) {}
 
   emailControl = new FormControl('', [Validators.required, Validators.email]);
-  passwordControl = new FormControl('', [
-    Validators.required
-  ]);
+  passwordControl = new FormControl('', [Validators.required]);
 
   loginForm = new FormGroup({
     email: this.emailControl,
@@ -57,6 +60,10 @@ export class LoginComponent {
       },
       error: (error) => {
         console.error('Login failed:', error);
+        this.toastr.error(
+          'Login failed. Please check your credentials.',
+          'FAILED'
+        );
         this.isLoading = false;
       },
     });

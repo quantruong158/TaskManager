@@ -15,20 +15,6 @@ export interface Task {
   updatedBy?: string;
 }
 
-export interface TaskStatusHistory {
-  historyId: number;
-  task: {
-    taskId: number;
-    title: string;
-  };
-  status: {
-    statusId: number;
-    statusName: string;
-  };
-  changedAt: Date;
-  changedBy: string;
-}
-
 export interface CreateTaskRequest {
   title: string;
   description?: string;

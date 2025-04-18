@@ -5,6 +5,13 @@
     matSortDirection="asc"
     (matSortChange)="onSortChange($event)"
   >
+    <ng-container matColumnDef="sequenceNo">
+      <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
+      <mat-cell *matCellDef="let element; let i = index">
+        {{ getSequenceNumber(i) }}
+      </mat-cell>
+    </ng-container>
+
     @for (column of columns; track column.key) {
     <ng-container [matColumnDef]="column.key">
       <mat-header-cell

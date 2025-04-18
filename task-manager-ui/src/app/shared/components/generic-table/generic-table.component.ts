@@ -22,7 +22,7 @@ export interface ColumnDef {
   key: string;
   header: string;
   sortable?: boolean;
-  type?: 'text' | 'date' | 'number' | 'boolean' | 'custom';
+  type?: 'text' | 'date' | 'number' | 'boolean' | 'custom' | 'sequence';
   formatter?: (value: any) => string;
 }
 
@@ -59,8 +59,18 @@ export class GenericTableComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.displayedColumns = this.columns.map((col) => col.key);
+    this.displayedColumns = [
+      'sequenceNo',
+      ...this.columns.map((col) => col.key),
+    ];
     this.updateDataSource();
+  }
+
+  getSequenceNumber(index: number): number {
+    if (this.paginator) {
+      return this.paginator.pageIndex * this.paginator.pageSize + index + 1;
+    }
+    return index + 1;
   }
 
   ngOnChanges(changes: SimpleChanges) {

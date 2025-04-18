@@ -3,8 +3,8 @@ import {
   ColumnDef,
   GenericTableComponent,
 } from '../../shared/components/generic-table/generic-table.component';
-import { TaskStatusHistory } from '../../core/models/task.model';
-import { TaskStatusHistoryService } from '../../core/services/task-status-history.service';
+import { TaskStatusLog } from '../../core/models/logging.model';
+import { LoggingService } from '../../core/services/logging-service';
 import { formatDate } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
@@ -16,13 +16,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './status-log.component.css',
 })
 export class StatusLogComponent {
-  private statusLog: TaskStatusHistory[] = [];
-  public filteredLog = signal<TaskStatusHistory[]>([]);
-  public selectedUser: TaskStatusHistory | null = null;
-  public totalCount = signal<number>(0);
-  public currentPage = signal<number>(1);
-  public pageSize = signal<number>(10);
-  public selectedTask: TaskStatusHistory | null = null;
+  private statusLog: TaskStatusLog[] = [];
+  public filteredLog = signal<TaskStatusLog[]>([]);
+  public selectedTask: TaskStatusLog | null = null;
   public isFiltered = signal<boolean>(false);
 
   public columns: ColumnDef[] = [
@@ -54,13 +50,13 @@ export class StatusLogComponent {
     },
   ];
 
-  constructor(private taskStatusHistoryService: TaskStatusHistoryService) {
+  constructor(private loggingService: LoggingService) {
     this.getStatusHistory();
   }
 
   private getStatusHistory() {
-    this.taskStatusHistoryService.getTaskStatusHistory().subscribe({
-      next: (response: TaskStatusHistory[]) => {
+    this.loggingService.getTaskStatusLog().subscribe({
+      next: (response: TaskStatusLog[]) => {
         this.statusLog = response;
         this.filteredLog.set(response);
       },
@@ -70,7 +66,7 @@ export class StatusLogComponent {
     });
   }
 
-  public handleRowClick(row: TaskStatusHistory) {
+  public handleRowClick(row: TaskStatusLog) {
     if (this.selectedTask === row) {
       this.selectedTask = null;
       return;

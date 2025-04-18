@@ -34,6 +34,17 @@
           >Priority is required</mat-error
         >
       </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Assign To</mat-label>
+        <mat-select [formControl]="assigneeControl">
+          <mat-option [value]="null">--- Unassigned ---</mat-option>
+          <mat-option *ngFor="let user of users" [value]="user.userId">
+            <span>{{ user.name }}</span
+            ><span style="color: darkgrey">{{ " ✉ " }}{{ user.email }} </span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
   </mat-dialog-content>
 

@@ -34,7 +34,6 @@ export class UserManagementComponent implements OnInit {
   public selectedUser: User | null = null;
 
   public columns: ColumnDef[] = [
-    { key: 'userId', header: 'ID', sortable: true },
     { key: 'name', header: 'Name', sortable: true },
     { key: 'email', header: 'Email', sortable: true },
     {

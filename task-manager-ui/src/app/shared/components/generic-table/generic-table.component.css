@@ -1,10 +1,20 @@
 .generic-table-container {
   width: 100%;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: 77vh;
 }
 
 mat-table {
   width: 100%;
+  min-width: 800px;
+  overflow: auto;
+}
+
+mat-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 mat-row {
@@ -27,4 +37,10 @@ mat-header-cell {
   color: #005cbb;
   padding: 8px 16px;
   font-weight: bold;
+}
+
+mat-paginator {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }

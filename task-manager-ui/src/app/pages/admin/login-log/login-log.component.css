@@ -1,0 +1,33 @@
+.status-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.right-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+::ng-deep .mat-column-email {
+  flex: 0 0 25% !important;
+}
+
+::ng-deep .mat-column-attemptIp {
+  flex: 0 0 10% !important;
+}
+
+::ng-deep .mat-column-isSuccess {
+  flex: 0 0 10% !important;
+}
+
+::ng-deep .mat-column-timestamp {
+  flex: 0 0 20% !important;
+}
