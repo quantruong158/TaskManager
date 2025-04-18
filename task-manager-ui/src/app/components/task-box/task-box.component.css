@@ -1,0 +1,23 @@
+.task-box {
+  padding: 8px;
+  margin-bottom: 8px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.task-list.cdk-drop-list-dragging .task-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+p {
+  margin: 8px;
+  font-size: 14px;
+}
+
+.task-title {
+  font-weight: 500;
+  font-size: 16px;
+  color: #005cbb;
+}

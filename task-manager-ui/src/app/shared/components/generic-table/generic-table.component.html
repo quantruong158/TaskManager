@@ -1,0 +1,39 @@
+<div class="generic-table-container">
+  <mat-table
+    [dataSource]="dataSource"
+    matSort
+    matSortDirection="asc"
+    (matSortChange)="onSortChange($event)"
+  >
+    @for (column of columns; track column.key) {
+    <ng-container [matColumnDef]="column.key">
+      <mat-header-cell
+        *matHeaderCellDef
+        [mat-sort-header]="column.sortable ? column.key : ''"
+      >
+        {{ column.header }}
+      </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        {{ formatCellValue(element[column.key], column) }}
+      </mat-cell>
+    </ng-container>
+    }
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      (click)="onRowClick(row)"
+      [class.selected-row]="isSelected(row)"
+    >
+    </mat-row>
+  </mat-table>
+
+  @if (showPaginator) {
+  <mat-paginator
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPageChange($event)"
+  >
+  </mat-paginator>
+  }
+</div>

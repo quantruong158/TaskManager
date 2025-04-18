@@ -1,0 +1,13 @@
+.status-management-container {
+  padding: 20px;
+}
+
+.action-buttons {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+::ng-deep .mat-column-statusId {
+  flex: 0 0 5% !important;
+}

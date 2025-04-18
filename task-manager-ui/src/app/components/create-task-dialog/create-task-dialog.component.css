@@ -1,0 +1,23 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  min-width: 350px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+mat-dialog-actions {
+  padding: 16px;
+}
+
+mat-dialog-content {
+  max-height: 80vh;
+}

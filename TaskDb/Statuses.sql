@@ -1,0 +1,12 @@
+﻿CREATE TABLE Statuses (
+    StatusId INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(50) NOT NULL UNIQUE,
+    CreatedAt DATETIME,
+    CreatedBy INT NOT NULL,
+    UpdatedAt DATETIME NULL,
+    UpdatedBy INT NULL,
+    [IsActive] BIT NOT NULL DEFAULT 1, 
+    [Order] INT NULL, 
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserId) ON DELETE NO ACTION,
+    FOREIGN KEY (UpdatedBy) REFERENCES Users(UserId) ON DELETE NO ACTION
+);

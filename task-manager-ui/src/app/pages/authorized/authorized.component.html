@@ -1,0 +1,30 @@
+<mat-sidenav-container>
+  @let user = currentUser$ | async;
+  <mat-sidenav [opened]="isExpanded" [mode]="'side'" class="sidenav">
+    <app-side-bar
+      [isExpanded]="isExpanded"
+      [role]="user?.role ?? null"
+    ></app-side-bar>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <a mat-button [routerLink]="'/dashboard'">Task Manager</a>
+      <span class="toolbar-spacer"></span>
+      <div class="user-info">
+        @if (user) {
+        <span>{{ user.role }}, {{ user.name }}</span>
+        }
+
+        <button mat-icon-button (click)="logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </mat-sidenav-content>
+</mat-sidenav-container>

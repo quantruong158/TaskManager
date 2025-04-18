@@ -1,0 +1,24 @@
+<div class="login-container">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <h2>Login</h2>
+    <mat-form-field [style.width.px]="300">
+      <mat-label>Email</mat-label>
+      <input matInput [formControl]="emailControl" />
+      @if (emailControl.errors?.['required']) {
+      <mat-error> Email is required </mat-error>
+      } @if (emailControl.errors?.['email']) {
+      <mat-error> Please enter a valid email </mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field [style.width.px]="300">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" [formControl]="passwordControl" />
+      @if (passwordControl.errors?.['required']) {
+      <mat-error> Password is required </mat-error>
+      }
+    </mat-form-field>
+    <button mat-flat-button type="submit">
+      {{ isLoading ? "Logging in..." : "Login" }}
+    </button>
+  </form>
+</div>

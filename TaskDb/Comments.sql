@@ -1,0 +1,17 @@
+﻿CREATE TABLE Comments (
+    CommentId INT PRIMARY KEY IDENTITY(1,1),
+    TaskId INT NOT NULL,
+    UserId INT NOT NULL,
+    Content TEXT NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    CreatedBy INT NULL,
+    UpdatedBy INT NULL,
+    FOREIGN KEY (TaskId) REFERENCES Tasks(TaskId) ON DELETE CASCADE,
+    FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE,
+    FOREIGN KEY (CreatedBy) REFERENCES Users(UserId) ON DELETE NO ACTION,
+    FOREIGN KEY (UpdatedBy) REFERENCES Users(UserId) ON DELETE NO ACTION
+);
+GO
+
+CREATE INDEX [IX_Comments_TaskId] ON [dbo].[Comments] ([TaskId])

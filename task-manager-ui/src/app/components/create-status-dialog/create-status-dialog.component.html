@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Create New Status</h2>
+<mat-dialog-content>
+  <form [formGroup]="statusForm" class="create-user-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Status Name</mat-label>
+      <input
+        matInput
+        [formControl]="nameControl"
+        placeholder="Enter status name"
+      />
+      @if (nameControl.errors?.['required']) {
+      <mat-error>Status name is required</mat-error>
+      } @if (nameControl.errors?.['minlength']) {
+      <mat-error>Status name must be at least 2 characters long</mat-error>
+      }
+    </mat-form-field>
+    <ng-container>
+      <mat-checkbox [formControl]="isActiveControl">Is Active</mat-checkbox>
+    </ng-container>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="statusForm.invalid"
+  >
+    Create
+  </button>
+</mat-dialog-actions>

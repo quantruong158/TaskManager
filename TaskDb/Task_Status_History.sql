@@ -1,0 +1,10 @@
+﻿CREATE TABLE Task_Status_History (
+    HistoryId INT PRIMARY KEY IDENTITY(1,1),
+    TaskId INT NOT NULL,
+    StatusId INT NOT NULL,
+    ChangedAt DATETIME DEFAULT GETDATE(),
+    ChangedBy INT NOT NULL,
+    FOREIGN KEY (TaskId) REFERENCES Tasks(TaskId) ON DELETE NO ACTION,
+    FOREIGN KEY (StatusId) REFERENCES Statuses(StatusId) ON DELETE NO ACTION,
+    FOREIGN KEY (ChangedBy) REFERENCES Users(UserId) ON DELETE NO ACTION
+);

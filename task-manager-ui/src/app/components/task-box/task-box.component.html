@@ -1,0 +1,5 @@
+<div class="task-box" (click)="openDetailsDialog()">
+  <p class="task-title">{{ task.title }}</p>
+  <p>Priority: {{ task.priority }}</p>
+  <p>Assignee: {{ task.assignedTo ? `${task.assigneeName}` : 'None'}}</p>
+</div>

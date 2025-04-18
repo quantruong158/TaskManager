@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>Create New User</h2>
+<mat-dialog-content>
+  <form [formGroup]="createUserForm" class="create-user-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        [formControl]="nameControl"
+        placeholder="Enter full name"
+      />
+      @if (nameControl.errors?.['required']) {
+      <mat-error> Name is required </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        [formControl]="emailControl"
+        placeholder="Enter email"
+        type="email"
+      />
+      @if (emailControl.errors?.['required']) {
+      <mat-error> Email is required </mat-error>
+      } @if (emailControl.errors?.['email']) {
+      <mat-error> Please enter a valid email </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        [formControl]="passwordControl"
+        type="password"
+        placeholder="Enter password"
+      />
+      @if (passwordControl.errors?.['required']) {
+      <mat-error> Password is required </mat-error>
+      } @if (passwordControl.errors?.['minlength']) {
+      <mat-error> Password must be at least 6 characters </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Roles</mat-label>
+      <mat-select [formControl]="roleIdsControl" multiple>
+        <mat-option *ngFor="let role of availableRoles" [value]="role.roleId">
+          {{ role.roleName }}
+        </mat-option>
+      </mat-select>
+      @if (roleIdsControl.errors?.['required']) {
+      <mat-error> At least one role must be selected </mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="createUserForm.invalid"
+  >
+    Create
+  </button>
+</mat-dialog-actions>

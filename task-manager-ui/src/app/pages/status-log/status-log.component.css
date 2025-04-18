@@ -1,0 +1,21 @@
+::ng-deep .mat-column-historyId {
+  flex: 0 0 5% !important;
+}
+
+.status-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.right-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}

@@ -1,0 +1,20 @@
+<div class="user-management-container">
+  <h2>User Management</h2>
+  <main>
+    <div class="action-buttons">
+      <button mat-flat-button (click)="openCreateUserDialog()">Add User</button>
+      @if (selectedUser) {
+      <button mat-flat-button color="secondary">Update User</button>
+      <button mat-flat-button color="destructive">Delete User</button>
+
+      }
+    </div>
+    <app-generic-table
+      [data]="users()"
+      [columns]="columns"
+      [pageSize]="10"
+      (rowClick)="handleRowClick($event)"
+    >
+    </app-generic-table>
+  </main>
+</div>

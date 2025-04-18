@@ -1,0 +1,23 @@
+<div class="main-container">
+  <div class="status-log-header">
+    <div class="left-header">
+      <h2>Task Status Log</h2>
+      @if (selectedTask && !isFiltered()) {
+      <button mat-button (click)="filter()">Filter</button>
+      } @if (isFiltered()) {
+      <button mat-button (click)="removeFilter()">Remove filter</button>
+      }
+    </div>
+    <div class="right-header">
+      <a [routerLink]="'/task'" mat-stroked-button>Back to Task</a>
+    </div>
+  </div>
+  <main>
+    <app-generic-table
+      [data]="filteredLog()"
+      [columns]="columns"
+      (rowClick)="handleRowClick($event)"
+    >
+    </app-generic-table>
+  </main>
+</div>

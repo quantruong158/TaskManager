@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="0ff616dd-5aa1-4a9d-82fe-5b5f3ded1e21" ChangeDateTime="04/16/2025 04:47:17">
+    <Property Name="ElementName" Value="[dbo].[Login_Logs].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Login_Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="LogId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b8f9e5c5-a4c9-407c-9b88-39d87390c1f9" ChangeDateTime="04/16/2025 04:49:57">
+    <Property Name="ElementName" Value="[dbo].[Login_Logs].[UserId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Login_Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="UserAgent" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ef2bc992-1b8d-4aa1-a9dd-7c8e1da48486" ChangeDateTime="04/16/2025 04:51:00">
+    <Property Name="ElementName" Value="[dbo].[Login_Logs].[AttempIp]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Login_Logs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="AttemptIp" />
+  </Operation>
+</Operations>

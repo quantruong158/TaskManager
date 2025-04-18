@@ -1,0 +1,51 @@
+<form [formGroup]="editTaskForm" (ngSubmit)="onSubmit()">
+  <h2 mat-dialog-title>Task Details</h2>
+
+  <mat-dialog-content>
+    <div class="form-container">
+      <mat-form-field appearance="fill">
+        <mat-label>Title</mat-label>
+        <input matInput [formControl]="titleControl" required />
+        <mat-error *ngIf="titleControl.hasError('required')"
+          >Title is required</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          [formControl]="descriptionControl"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Priority</mat-label>
+        <mat-select [formControl]="priorityControl" required>
+          <mat-option
+            *ngFor="let priority of priorityLevels"
+            [value]="priority.toLowerCase()"
+          >
+            {{ priority }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="priorityControl.hasError('required')"
+          >Priority is required</mat-error
+        >
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="!editTaskForm.valid"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

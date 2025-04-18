@@ -1,0 +1,35 @@
+<div class="tasks-container">
+  <div class="task-header">
+    <h2>Tasks</h2>
+    <a mat-button [routerLink]="'/status-log'">View status log</a>
+  </div>
+  <main>
+    <div class="action-buttons">
+      <button mat-flat-button (click)="openCreateDialog()">Add Task</button>
+    </div>
+    <div class="status-container-wrapper">
+      <div class="status-container">
+        @for (status of statuses(); track status.statusId) {
+        <div class="status-column">
+          <p class="status-label">{{ status.name }}</p>
+          <div
+            cdkDropList
+            [id]="'list-' + status.statusId"
+            [cdkDropListData]="getTasksByStatus(status.statusId)"
+            [cdkDropListConnectedTo]="getConnectedLists(status.statusId)"
+            class="task-list"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for (task of getTasksByStatus(status.statusId); track task.taskId)
+            {
+            <div cdkDrag style="overflow: visible">
+              <task-box [task]="task"></task-box>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </main>
+</div>

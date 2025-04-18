@@ -1,0 +1,25 @@
+<div class="status-management-container">
+  <div class="header">
+    <h2>Status Management</h2>
+  </div>
+  <main>
+    <div class="action-buttons">
+      <button mat-flat-button (click)="openCreateDialog()">Add Status</button>
+      @if (selectedStatus) {
+      <button mat-flat-button color="secondary">Update Status</button>
+      <button mat-flat-button color="destructive">Delete Status</button>
+
+      }
+    </div>
+    <app-generic-table
+      [data]="statuses()"
+      [columns]="columns"
+      [pageSize]="10"
+      (rowClick)="handleRowClick($event)"
+      (sortChange)="handleSortChange($event)"
+      [showPaginator]="false"
+      (pageChange)="handlePageChange($event)"
+    >
+    </app-generic-table>
+  </main>
+</div>
