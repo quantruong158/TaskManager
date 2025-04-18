@@ -25,6 +25,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CreateStatusDialogComponent } from '../create-status-dialog/create-status-dialog.component';
 import { ToastrService } from 'ngx-toastr';
+import { ZeroPadPipe } from "../../shared/pipes/zero-pad.pipe";
 
 @Component({
   selector: 'app-task-details-dialog',
@@ -38,7 +39,8 @@ import { ToastrService } from 'ngx-toastr';
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-  ],
+    ZeroPadPipe
+],
   templateUrl: './task-details-dialog.component.html',
   styleUrl: './task-details-dialog.component.css',
 })

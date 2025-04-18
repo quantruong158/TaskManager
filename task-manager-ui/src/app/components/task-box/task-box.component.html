@@ -1,5 +1,13 @@
 <div class="task-box" (click)="openDetailsDialog()">
-  <p class="task-title">{{ task.title }}</p>
+  <p class="task-title">
+    <span
+      >{{ task.title | slice : 0 : 12
+      }}{{ task.title.length > 12 ? "..." : "" }}</span
+    >
+    <span style="color: darkgray; font-size: 12px"
+      >#{{ task.taskId | zeroPad }}
+    </span>
+  </p>
   <p>Priority: {{ task.priority }}</p>
-  <p>Assignee: {{ task.assignedTo ? `${task.assigneeName}` : 'None'}}</p>
+  <p>Assignee: {{ task.assignedTo ? task.assigneeName : "None" }}</p>
 </div>

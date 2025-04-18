@@ -2,6 +2,10 @@
   flex: 0 0 5% !important;
 }
 
+::ng-deep .mat-column-task {
+  flex: 0 0 18% !important;
+}
+
 .status-log-header {
   display: flex;
   align-items: center;

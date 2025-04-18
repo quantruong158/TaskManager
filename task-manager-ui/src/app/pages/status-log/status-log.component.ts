@@ -22,12 +22,12 @@ export class StatusLogComponent {
   public isFiltered = signal<boolean>(false);
 
   public columns: ColumnDef[] = [
-    // { key: 'historyId', header: 'ID', sortable: true },
     {
       key: 'task',
       header: 'Title',
       sortable: true,
-      formatter: (value: { taskId: number; title: string }) => value.title,
+      formatter: (value: { taskId: number; title: string }) =>
+        value.title + ' #' + value.taskId.toString().padStart(4, '0'),
     },
     {
       key: 'changedAt',
