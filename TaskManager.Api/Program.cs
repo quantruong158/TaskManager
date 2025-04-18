@@ -57,7 +57,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStatusService, StatusService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<ITaskStatusHistoryService, TaskStatusHistoryService>();
+builder.Services.AddScoped<ILoggingService, LoggingService>();
 builder.Services.AddSingleton<IDbInitializer, DbInitializer>();
 
 // Configure JWT authentication
