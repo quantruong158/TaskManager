@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>Update User</h2>
+<mat-dialog-content>
+  <form [formGroup]="updateUserForm" class="update-user-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input
+        matInput
+        [formControl]="nameControl"
+        placeholder="Enter full name"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        [formControl]="emailControl"
+        placeholder="Enter email"
+        type="email"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Roles</mat-label>
+      <mat-select [formControl]="roleIdsControl" multiple>
+        <mat-option *ngFor="let role of availableRoles" [value]="role.roleId">
+          {{ role.roleName }}
+        </mat-option>
+      </mat-select>
+      @if (roleIdsControl.errors?.['required']) {
+      <mat-error> At least one role must be selected </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox [formControl]="isActiveControl">Is Active</mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="updateUserForm.invalid"
+  >
+    Update
+  </button>
+</mat-dialog-actions>

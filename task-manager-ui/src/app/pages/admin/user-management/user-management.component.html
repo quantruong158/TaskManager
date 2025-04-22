@@ -4,8 +4,12 @@
     <div class="action-buttons">
       <button mat-flat-button (click)="openCreateUserDialog()">Add User</button>
       @if (selectedUser) {
-      <button mat-flat-button color="secondary">Update User</button>
-      <button mat-flat-button color="destructive">Delete User</button>
+      <button
+        mat-button
+        (click)="openUpdateUserDialog()"
+      >
+        Update User
+      </button>
 
       }
     </div>

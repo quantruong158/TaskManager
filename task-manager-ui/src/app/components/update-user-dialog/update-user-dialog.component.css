@@ -1,0 +1,11 @@
+.update-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+  padding: 16px 0;
+}
+
+mat-form-field {
+  width: 100%;
+}

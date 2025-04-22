@@ -21,7 +21,7 @@ namespace TaskManager.Api.Services
         Task<IEnumerable<UserDto>> GetAllUsersWithRolesAsync();
         Task<UserDto> GetUserByIdAsync(int id);
         Task<int> CreateUserAsync(User user, string password, List<int> roleIds);
-        Task UpdateUserAsync(int id, User user);
+        Task UpdateUserAsync(int id, User user, List<int> roleIds);
         Task DeleteUserAsync(int id);
     }
 
@@ -72,12 +72,9 @@ namespace TaskManager.Api.Services
 
         public async Task<UserDto> GetUserByIdAsync(int id)
         {
-            using var connection = _unitOfWork.Connection;
-            await connection.OpenAsync();
-
             var userDict = new Dictionary<int, User>();
 
-            var users = await connection.QueryAsync<User, Role, User>(
+            var users = await _unitOfWork.Connection.QueryAsync<User, Role, User>(
                 @"SELECT u.*, r.* 
                 FROM Users u
                 LEFT JOIN UserRoles ur ON u.UserId = ur.UserId
@@ -100,7 +97,8 @@ namespace TaskManager.Api.Services
                     return userEntry;
                 },
                 new { Id = id },
-                splitOn: "RoleId"
+                splitOn: "RoleId",
+                transaction: _unitOfWork.Transaction
             );
 
             var result = userDict.Values.FirstOrDefault();
@@ -117,146 +115,126 @@ namespace TaskManager.Api.Services
                 throw new BadRequestException("At least one role must be specified");
             }
 
-            await _unitOfWork.BeginAsync();
-            try
+            // Check if email already exists
+            var existingUser = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
+                "SELECT * FROM Users WHERE Email = @Email",
+                new { user.Email },
+                transaction: _unitOfWork.Transaction);
+
+            if (existingUser != null)
+                throw new BadRequestException("Email already registered");
+
+            // Validate that all role IDs exist
+            var existingRoleIds = await _unitOfWork.Connection.QueryAsync<int>(
+                "SELECT RoleId FROM Roles WHERE RoleId IN @RoleIds",
+                new { RoleIds = roleIds },
+                transaction: _unitOfWork.Transaction);
+
+            var invalidRoleIds = roleIds.Except(existingRoleIds);
+            if (invalidRoleIds.Any())
             {
-                // Check if email already exists
-                var existingUser = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
-                    "SELECT * FROM Users WHERE Email = @Email",
-                    new { user.Email },
-                    transaction: _unitOfWork.Transaction);
-
-                if (existingUser != null)
-                    throw new BadRequestException("Email already registered");
-
-                // Validate that all role IDs exist
-                var existingRoleIds = await _unitOfWork.Connection.QueryAsync<int>(
-                    "SELECT RoleId FROM Roles WHERE RoleId IN @RoleIds",
-                    new { RoleIds = roleIds },
-                    transaction: _unitOfWork.Transaction);
-
-                var invalidRoleIds = roleIds.Except(existingRoleIds);
-                if (invalidRoleIds.Any())
-                {
-                    throw new BadRequestException($"Invalid role IDs: {string.Join(", ", invalidRoleIds)}");
-                }
-
-                var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
-
-                var sql = @"
-                    INSERT INTO Users (Email, PasswordHash, Name, IsActive, CreatedAt, CreatedBy)
-                    VALUES (@Email, @PasswordHash, @Name, @IsActive, @CreatedAt, @CreatedBy);
-                    SELECT SCOPE_IDENTITY();";
-
-                var now = DateTime.UtcNow;
-                user.CreatedAt = now;
-                user.IsActive = true;
-
-                var parameters = new
-                {
-                    user.Email,
-                    PasswordHash = passwordHash,
-                    user.Name,
-                    user.IsActive,
-                    user.CreatedAt,
-                    user.CreatedBy
-                };
-
-                var userId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
-
-                // Insert all user roles
-                var userRoles = roleIds.Select(roleId => new
-                {
-                    UserId = userId,
-                    RoleId = roleId
-                });
-
-                await _unitOfWork.Connection.ExecuteAsync(
-                    @"INSERT INTO UserRoles (UserId, RoleId)
-                    VALUES (@UserId, @RoleId)",
-                    userRoles,
-                    _unitOfWork.Transaction);
-
-                await _unitOfWork.CommitAsync();
-                return userId;
+                throw new BadRequestException($"Invalid role IDs: {string.Join(", ", invalidRoleIds)}");
             }
-            catch
+
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            var sql = @"
+                INSERT INTO Users (Email, PasswordHash, Name, IsActive, CreatedAt, CreatedBy)
+                VALUES (@Email, @PasswordHash, @Name, @IsActive, @CreatedAt, @CreatedBy);
+                SELECT SCOPE_IDENTITY();";
+
+            var now = DateTime.UtcNow;
+            user.CreatedAt = now;
+            user.IsActive = true;
+
+            var parameters = new
             {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+                user.Email,
+                PasswordHash = passwordHash,
+                user.Name,
+                user.IsActive,
+                user.CreatedAt,
+                user.CreatedBy
+            };
+
+            var userId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
+
+            // Insert all user roles
+            var userRoles = roleIds.Select(roleId => new
+            {
+                UserId = userId,
+                RoleId = roleId
+            });
+
+            await _unitOfWork.Connection.ExecuteAsync(
+                @"INSERT INTO UserRoles (UserId, RoleId)
+                VALUES (@UserId, @RoleId)",
+                userRoles,
+                _unitOfWork.Transaction);
+                
+            return userId;
         }
 
-        public async Task UpdateUserAsync(int id, User user)
+        public async Task UpdateUserAsync(int id, User user, List<int> roleIds)
         {
-            await _unitOfWork.BeginAsync();
-            try
-            {
-                // Check if user exists
-                var existingUser = await GetUserByIdAsync(id);
+            // Check if user exists
+            var existingUser = await GetUserByIdAsync(id);
 
-                // Check if new email is not taken by another user
-                if (!string.Equals(existingUser.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            // Check if new email is not taken by another user
+            if (!string.Equals(existingUser.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailExists = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
+                    "SELECT * FROM Users WHERE Email = @Email AND UserId != @Id",
+                    new { user.Email, Id = id },
+                    _unitOfWork.Transaction);
+
+                if (emailExists != null)
+                    throw new BadRequestException("Email already taken");
+            }
+
+            var result = await _unitOfWork.Connection.ExecuteAsync(@"
+                UPDATE Users 
+                SET Email = @Email,
+                    Name = @Name,
+                    IsActive = @IsActive,
+                    UpdatedAt = @UpdatedAt,
+                    UpdatedBy = @UpdatedBy
+                WHERE UserId = @Id",
+                new
                 {
-                    var emailExists = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
-                        "SELECT * FROM Users WHERE Email = @Email AND UserId != @Id",
-                        new { user.Email, Id = id },
-                        _unitOfWork.Transaction);
+                    Id = id,
+                    user.Email,
+                    user.Name,
+                    user.IsActive,
+                    UpdatedAt = DateTime.UtcNow,
+                    user.UpdatedBy
+                }, _unitOfWork.Transaction);
 
-                    if (emailExists != null)
-                        throw new BadRequestException("Email already taken");
-                }
-
-                var result = await _unitOfWork.Connection.ExecuteAsync(@"
-                    UPDATE Users 
-                    SET Email = @Email,
-                        Name = @Name,
-                        IsActive = @IsActive,
-                        UpdatedAt = @UpdatedAt,
-                        UpdatedBy = @UpdatedBy
-                    WHERE UserId = @Id",
-                    new
-                    {
-                        Id = id,
-                        user.Email,
-                        user.Name,
-                        user.IsActive,
-                        UpdatedAt = DateTime.UtcNow,
-                        user.UpdatedBy
-                    }, _unitOfWork.Transaction);
-
-                if (result == 0)
-                    throw new NotFoundException("User not found");
-
-                await _unitOfWork.CommitAsync();
-            }
-            catch (Exception ex) when (!(ex is NotFoundException || ex is BadRequestException))
+            // Delete and Insert all user roles
+            var userRoles = roleIds.Select(roleId => new
             {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+                UserId = id,
+                RoleId = roleId
+            });
+
+            await _unitOfWork.Connection.ExecuteAsync(
+                @"
+                DELETE FROM UserRoles WHERE UserId = @UserId;
+                INSERT INTO UserRoles (UserId, RoleId)
+                VALUES (@UserId, @RoleId)",
+                userRoles,
+                _unitOfWork.Transaction);
         }
 
         public async Task DeleteUserAsync(int id)
         {
-            await _unitOfWork.BeginAsync();
-            try
-            {
-                var result = await _unitOfWork.Connection.ExecuteAsync(
-                    "DELETE FROM Users WHERE UserId = @Id",
-                    new { Id = id },
-                    _unitOfWork.Transaction);
+            var result = await _unitOfWork.Connection.ExecuteAsync(
+                "DELETE FROM Users WHERE UserId = @Id",
+                new { Id = id },
+                _unitOfWork.Transaction);
 
-                if (result == 0)
-                    throw new NotFoundException("User not found");
-
-                await _unitOfWork.CommitAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+            if (result == 0)
+                throw new NotFoundException("User not found");
         }
     }
 }

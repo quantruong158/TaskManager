@@ -6,6 +6,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class ZeroPadPipe implements PipeTransform {
   transform(value: number): string {
-    return value.toString().padStart(3, '0');
+    return value.toString().padStart(4, '0');
   }
 }

@@ -17,6 +17,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CreateUserDialogComponent } from '../../../components/create-user-dialog/create-user-dialog.component';
 import { PaginatedResponse } from '../../../shared/models/pagination.model';
+import { UpdateUserDialogComponent } from '../../../components/update-user-dialog/update-user-dialog.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user-management',
@@ -58,7 +60,11 @@ export class UserManagementComponent implements OnInit {
     },
   ];
 
-  constructor(private userService: UserService, private dialog: MatDialog) {
+  constructor(
+    private userService: UserService,
+    private dialog: MatDialog,
+    private toastr: ToastrService
+  ) {
     this.getUsers();
   }
 
@@ -68,6 +74,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.getUsers().subscribe({
       next: (response: User[]) => {
         this.users.set(response);
+        this.selectedUser = null;
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error fetching users:', error);
@@ -90,6 +97,30 @@ export class UserManagementComponent implements OnInit {
             console.error('Error creating user:', error);
           },
         });
+      }
+    });
+  }
+
+  openUpdateUserDialog(): void {
+    const dialogRef = this.dialog.open(UpdateUserDialogComponent, {
+      width: '500px',
+      data: this.selectedUser,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.userService
+          .updateUser(this.selectedUser?.userId!, result)
+          .subscribe({
+            next: () => {
+              this.toastr.success('User updated successfully', 'SUCCESS');
+              this.getUsers();
+            },
+            error: (error: HttpErrorResponse) => {
+              this.toastr.error('Error updating user', 'ERROR');
+              console.error('Error creating user:', error);
+            },
+          });
       }
     });
   }

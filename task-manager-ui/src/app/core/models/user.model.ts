@@ -14,3 +14,17 @@ export interface User {
   updatedAt: string;
   updatedBy: string;
 }
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  name: string;
+  roleIds: number[];
+}
+
+export interface UpdateUserDto {
+  email: string;
+  name: string;
+  roleIds: number[];
+  isActive: boolean;
+}

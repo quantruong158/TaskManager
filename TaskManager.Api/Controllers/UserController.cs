@@ -92,7 +92,7 @@ namespace TaskManager.Api.Controllers
                     UpdatedBy = User.GetUserId()
                 };
 
-                await _userService.UpdateUserAsync(id, user);
+                await _userService.UpdateUserAsync(id, user, request.RoleIds);
 
                 await _loggingService.LogActivityAsync(new ActivityLog 
                 { 
@@ -155,5 +155,6 @@ namespace TaskManager.Api.Controllers
         public required string Email { get; set; }
         public required string Name { get; set; }
         public bool IsActive { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
     }
 }
