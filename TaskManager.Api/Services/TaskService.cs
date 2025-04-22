@@ -140,6 +140,8 @@ namespace TaskManager.Api.Services
             };
 
             var taskId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
+
+            await _loggingService.LogTaskStatusChangeAsync(taskId, 1, userId);
             
             if (taskId == 0)
                 throw new AppException("Failed to create task");
