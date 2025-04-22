@@ -28,7 +28,8 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpGet("activity")]
-        public async Task<ActionResult<IEnumerable<ActivityLog>>> GetActivityLogs()
+        [Authorize("AdminOnly")]
+        public async Task<ActionResult<IEnumerable<ActivityLogResponseDto>>> GetActivityLogs()
         {
             var logs = await _loggingService.GetActivityLogsAsync();
             return Ok(logs);

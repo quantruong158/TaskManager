@@ -7,7 +7,7 @@ namespace TaskManager.Api.Services
     public interface ILoggingService
     {
         Task<IEnumerable<TaskStatusHistoryDto>> GetTaskStatusHistoryAsync();
-        Task<IEnumerable<ActivityLog>> GetActivityLogsAsync();
+        Task<IEnumerable<ActivityLogResponseDto>> GetActivityLogsAsync();
         Task<IEnumerable<LoginLog>> GetLoginLogsAsync();
         Task LogActivityAsync(ActivityLog log);
         Task LogLoginAttemptAsync(LoginLog log);
@@ -50,16 +50,22 @@ namespace TaskManager.Api.Services
                 splitOn: "TaskId,StatusId,ChangedByName");
         }
 
-        public async Task<IEnumerable<ActivityLog>> GetActivityLogsAsync()
+        public async Task<IEnumerable<ActivityLogResponseDto>> GetActivityLogsAsync()
         {
             using var connection = _unitOfWork.Connection;
             await connection.OpenAsync();
 
             const string sql = @"
-                SELECT * FROM Activity_Logs
+                SELECT al.LogId, al.Action, al.TargetTable, al.TargetId, al.Timestamp, u.UserId, u.Name, u.Email
+                FROM Activity_Logs al
+                LEFT JOIN Users u ON al.UserId = u.UserId
                 ORDER BY Timestamp DESC";
 
-            return await connection.QueryAsync<ActivityLog>(sql);
+            return await connection.QueryAsync<ActivityLogResponseDto, UserLogDto, ActivityLogResponseDto>(sql, (log, user) =>
+            {
+                log.User = user;
+                return log;
+            }, splitOn: "UserId");
         }
 
         public async Task<IEnumerable<LoginLog>> GetLoginLogsAsync()
