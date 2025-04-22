@@ -16,10 +16,11 @@ namespace TaskManager.Api.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILoggingService _loggingService;
 
-        public UserController(IUserService userService, IUnitOfWork unitOfWork)
+        public UserController(IUserService userService, IUnitOfWork unitOfWork, ILoggingService loggingService)
         {
             _userService = userService;
             _unitOfWork = unitOfWork;
+            _loggingService = loggingService;
         }
 
         [HttpGet]
