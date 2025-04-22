@@ -14,6 +14,7 @@ namespace TaskManager.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILoggingService _loggingService;
 
         public UserController(IUserService userService, IUnitOfWork unitOfWork)
         {
@@ -52,6 +53,16 @@ namespace TaskManager.Api.Controllers
                 };
 
                 var userId = await _userService.CreateUserAsync(user, request.Password, request.RoleIds);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Create",
+                    TargetTable = "Users",
+                    TargetId = userId,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 return Ok(userId);
             }
@@ -74,13 +85,23 @@ namespace TaskManager.Api.Controllers
                 {
                     Email = request.Email,
                     Name = request.Name,
-PasswordHash = "",
+                    PasswordHash = "",
                     IsActive = request.IsActive,
                     UpdatedAt = DateTime.UtcNow,
                     UpdatedBy = User.GetUserId()
                 };
 
                 await _userService.UpdateUserAsync(id, user);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Update",
+                    TargetTable = "Users",
+                    TargetId = id,
+                    Timestamp = DateTime.UtcNow
+                });
+                
                 await _unitOfWork.CommitAsync();
                 return NoContent();
             }
@@ -99,6 +120,16 @@ PasswordHash = "",
             {
                 await _unitOfWork.BeginAsync();
                 await _userService.DeleteUserAsync(id);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Delete",
+                    TargetTable = "Users",
+                    TargetId = id,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 return NoContent();
             }

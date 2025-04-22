@@ -15,11 +15,13 @@ namespace TaskManager.Api.Controllers
     {
         private readonly ITaskService _taskService;
         private readonly IUnitOfWork _unitOfWork;
-        
-        public TaskController(ITaskService taskService, IUnitOfWork unitOfWork)
+        private readonly ILoggingService _loggingService;
+
+        public TaskController(ITaskService taskService, IUnitOfWork unitOfWork, ILoggingService loggingService)
         {
             _taskService = taskService;
             _unitOfWork = unitOfWork;
+            _loggingService = loggingService;
         }
 
         [HttpGet]
@@ -62,6 +64,16 @@ namespace TaskManager.Api.Controllers
                 };
 
                 var taskId = await _taskService.CreateTaskAsync(task, userId);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Create",
+                    TargetTable = "Tasks",
+                    TargetId = taskId,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 
                 return Ok(taskId);
@@ -90,6 +102,16 @@ namespace TaskManager.Api.Controllers
                 };
 
                 await _taskService.UpdateTaskAsync(id, task, userId);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Update",
+                    TargetTable = "Tasks",
+                    TargetId = id,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 
                 return NoContent();
@@ -111,6 +133,15 @@ namespace TaskManager.Api.Controllers
                 var userId = User.GetUserId();
                 await _taskService.ChangeTaskStatusAsync(id, request.NewStatusId, userId);
                 
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "ChangeStatus",
+                    TargetTable = "Tasks",
+                    TargetId = id,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 return NoContent();
             }
@@ -128,6 +159,16 @@ namespace TaskManager.Api.Controllers
             {
                 await _unitOfWork.BeginAsync();
                 await _taskService.DeleteTaskAsync(id);
+
+                await _loggingService.LogActivityAsync(new ActivityLog 
+                { 
+                    UserId = User.GetUserId(),
+                    Action = "Delete",
+                    TargetTable = "Tasks",
+                    TargetId = id,
+                    Timestamp = DateTime.UtcNow
+                });
+
                 await _unitOfWork.CommitAsync();
                 return NoContent();
             }

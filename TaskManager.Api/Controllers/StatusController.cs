@@ -13,11 +13,13 @@ public class StatusController : ControllerBase
 {
     private readonly IStatusService _statusService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILoggingService _loggingService;
 
-    public StatusController(IStatusService statusService, IUnitOfWork unitOfWork)
+    public StatusController(IStatusService statusService, IUnitOfWork unitOfWork, ILoggingService loggingService)
     {
         _statusService = statusService;
         _unitOfWork = unitOfWork;
+        _loggingService = loggingService;
     }
 
     [HttpGet]
@@ -51,6 +53,16 @@ public class StatusController : ControllerBase
             };
 
             var statusId = await _statusService.CreateStatusAsync(status);
+
+            await _loggingService.LogActivityAsync(new ActivityLog 
+            { 
+                UserId = User.GetUserId(),
+                Action = "Create",
+                TargetTable = "Statuses",
+                TargetId = statusId,
+                Timestamp = DateTime.UtcNow
+            });
+
             await _unitOfWork.CommitAsync();
             return Ok(statusId);
         }
@@ -79,6 +91,16 @@ public class StatusController : ControllerBase
             };
 
             await _statusService.UpdateStatusAsync(id, status);
+
+            await _loggingService.LogActivityAsync(new ActivityLog 
+            { 
+                UserId = User.GetUserId(),
+                Action = "Update",
+                TargetTable = "Statuses",
+                TargetId = id,
+                Timestamp = DateTime.UtcNow
+            });
+
             await _unitOfWork.CommitAsync();
             return NoContent();
         }
@@ -97,6 +119,16 @@ public class StatusController : ControllerBase
         {
             await _unitOfWork.BeginAsync();
             await _statusService.DeleteStatusAsync(id);
+
+            await _loggingService.LogActivityAsync(new ActivityLog 
+            { 
+                UserId = User.GetUserId(),
+                Action = "Delete",
+                TargetTable = "Statuses",
+                TargetId = id,
+                Timestamp = DateTime.UtcNow
+            });
+            
             await _unitOfWork.CommitAsync();
             return NoContent();
         }
