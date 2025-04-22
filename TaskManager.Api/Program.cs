@@ -53,6 +53,7 @@ builder.Services.AddSwaggerGen(options =>
 // Register services
 builder.Services.AddSingleton<IDatabase, Database>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();

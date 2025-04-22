@@ -53,5 +53,23 @@ namespace TaskManager.Api.Models.DTOs
                 UpdatedBy = user.UpdatedBy.ToString()
             };
         }
+
+        public static CommentResponseDto ToDto(this Comment comment)
+        {
+            return new CommentResponseDto
+            {
+                CommentId = comment.CommentId,
+                TaskId = comment.TaskId,
+                Content = comment.Content,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                User = new UserCommentDto
+                {
+                    UserId = comment.User.UserId,
+                    Name = comment.User.Name,
+                    Email = comment.User.Email
+                }
+            };
+        }
     }
 }

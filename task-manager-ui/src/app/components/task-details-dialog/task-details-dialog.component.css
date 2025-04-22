@@ -21,3 +21,18 @@ mat-dialog-actions {
 mat-dialog-content {
   max-height: 80vh;
 }
+
+.dialog-container {
+  display: flex;
+}
+
+.details-section {
+  flex: 1;
+  width: 400px;
+}
+
+.comments-section {
+  min-width: 300px;
+  border-left: 1px solid #e0e0e0;
+  overflow: hidden;
+}

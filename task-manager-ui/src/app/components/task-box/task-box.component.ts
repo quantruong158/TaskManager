@@ -43,7 +43,8 @@ export class TaskBoxComponent {
 
   openDetailsDialog() {
     const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
-      width: '500px',
+      minWidth: '950px',
+      minHeight: 'auto',
       data: this.task,
     });
 

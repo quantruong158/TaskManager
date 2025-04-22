@@ -1,0 +1,43 @@
+<div class="comment-section">
+  <div style="padding: 24px">
+    <h3>Comments</h3>
+    <div class="comment-container">
+      <div class="comments-list">
+        @if (comments.length === 0) {
+        <p>No comments yet</p>
+        } @for (comment of comments; track comment.commentId) {
+        <div class="comment">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.user.name }}</span>
+            <span class="comment-date">{{
+              comment.createdAt | date : "medium"
+            }}</span>
+          </div>
+          <div class="comment-content">
+            {{ comment.content }}
+          </div>
+        </div>
+        }
+      </div>
+
+      <form [formGroup]="commentForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="comment-input">
+          <mat-label>Add a comment</mat-label>
+          <textarea
+            matInput
+            [formControl]="contentControl"
+            placeholder="Write a comment..."
+          ></textarea>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="!commentForm.valid"
+        >
+          Comment
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

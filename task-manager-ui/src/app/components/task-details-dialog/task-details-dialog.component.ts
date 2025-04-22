@@ -25,10 +25,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CreateStatusDialogComponent } from '../create-status-dialog/create-status-dialog.component';
 import { ToastrService } from 'ngx-toastr';
-import { ZeroPadPipe } from "../../shared/pipes/zero-pad.pipe";
+import { ZeroPadPipe } from '../../shared/pipes/zero-pad.pipe';
+import { CommentSectionComponent } from '../comment-section/comment-section.component';
 
 @Component({
   selector: 'app-task-details-dialog',
+  templateUrl: './task-details-dialog.component.html',
+  styleUrls: ['./task-details-dialog.component.css'],
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -39,10 +43,9 @@ import { ZeroPadPipe } from "../../shared/pipes/zero-pad.pipe";
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    ZeroPadPipe
-],
-  templateUrl: './task-details-dialog.component.html',
-  styleUrl: './task-details-dialog.component.css',
+    ZeroPadPipe,
+    CommentSectionComponent,
+  ],
 })
 export class TaskDetailsDialogComponent implements OnInit {
   public task!: Task;
