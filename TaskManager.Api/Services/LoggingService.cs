@@ -16,15 +16,18 @@ namespace TaskManager.Api.Services
 
     public class LoggingService : ILoggingService
     {
-        private readonly IDatabase _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public LoggingService(IDatabase db)
+        public LoggingService(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<TaskStatusHistoryDto>> GetTaskStatusHistoryAsync()
         {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
             const string sql = @"
                 SELECT h.HistoryId, h.ChangedAt, h.ChangedBy, h.TaskId, t.Title,
                        s.StatusId, s.Name as StatusName,
@@ -35,9 +38,7 @@ namespace TaskManager.Api.Services
                 INNER JOIN Users u ON h.ChangedBy = u.UserId
                 ORDER BY h.ChangedAt DESC";
 
-            using var conn = _db.CreateConnection();
-            await conn.OpenAsync();
-            var histories = await conn.QueryAsync<TaskStatusHistoryDto, TaskDto, StatusDto, string, TaskStatusHistoryDto>(
+            return await connection.QueryAsync<TaskStatusHistoryDto, TaskDto, StatusDto, string, TaskStatusHistoryDto>(
                 sql,
                 (history, task, status, changedByName) =>
                 {
@@ -46,44 +47,40 @@ namespace TaskManager.Api.Services
                     history.ChangedBy = changedByName;
                     return history;
                 },
-                splitOn: "TaskId,StatusId,ChangedByName"
-            );
-
-            return histories;
+                splitOn: "TaskId,StatusId,ChangedByName");
         }
 
         public async Task<IEnumerable<ActivityLog>> GetActivityLogsAsync()
         {
-            const string sql = @"
-                SELECT l.LogId, l.UserId, l.Action, l.TargetId, l.Timestamp,
-                       u.Name as UserName, u.Email
-                FROM Activity_Logs l
-                INNER JOIN Users u ON l.UserId = u.UserId
-                ORDER BY l.Timestamp DESC";
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
 
-            using var conn = _db.CreateConnection();
-            return await conn.QueryAsync<ActivityLog>(sql);
+            const string sql = @"
+                SELECT * FROM Activity_Logs
+                ORDER BY Timestamp DESC";
+
+            return await connection.QueryAsync<ActivityLog>(sql);
         }
 
         public async Task<IEnumerable<LoginLog>> GetLoginLogsAsync()
         {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
             const string sql = @"
-                SELECT LogId, Email, IsSuccess, Timestamp, UserAgent, AttemptIp
-                FROM Login_Logs
+                SELECT * FROM Login_Logs
                 ORDER BY Timestamp DESC";
 
-            using var conn = _db.CreateConnection();
-            return await conn.QueryAsync<LoginLog>(sql);
+            return await connection.QueryAsync<LoginLog>(sql);
         }
 
         public async Task LogActivityAsync(ActivityLog log)
         {
             const string sql = @"
-                INSERT INTO Activity_Logs (UserId, Action, TargetId, Timestamp)
-                VALUES (@UserId, @Action, @TargetId, @Timestamp)";
+                INSERT INTO Activity_Logs (UserId, Action, TargetTable, TargetId, Timestamp)
+                VALUES (@UserId, @Action, @TargetTable, @TargetId, @Timestamp)";
 
-            using var conn = _db.CreateConnection();
-            await conn.ExecuteAsync(sql, log);
+            await _unitOfWork.Connection.ExecuteAsync(sql, log, _unitOfWork.Transaction);
         }
 
         public async Task LogLoginAttemptAsync(LoginLog log)
@@ -92,8 +89,7 @@ namespace TaskManager.Api.Services
                 INSERT INTO Login_Logs (Email, IsSuccess, Timestamp, UserAgent, AttemptIp)
                 VALUES (@Email, @IsSuccess, @Timestamp, @UserAgent, @AttemptIp)";
 
-            using var conn = _db.CreateConnection();
-            await conn.ExecuteAsync(sql, log);
+            await _unitOfWork.Connection.ExecuteAsync(sql, log, _unitOfWork.Transaction);
         }
 
         public async Task LogTaskStatusChangeAsync(int taskId, int statusId, int changedBy)
@@ -102,14 +98,13 @@ namespace TaskManager.Api.Services
                 INSERT INTO Task_Status_History (TaskId, StatusId, ChangedAt, ChangedBy)
                 VALUES (@TaskId, @StatusId, @ChangedAt, @ChangedBy)";
 
-            using var conn = _db.CreateConnection();
-            await conn.ExecuteAsync(sql, new
+            await _unitOfWork.Connection.ExecuteAsync(sql, new
             {
                 TaskId = taskId,
                 StatusId = statusId,
                 ChangedAt = DateTime.UtcNow,
                 ChangedBy = changedBy
-            });
+            }, _unitOfWork.Transaction);
         }
     }
 }

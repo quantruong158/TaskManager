@@ -27,34 +27,33 @@ namespace TaskManager.Api.Services
 
     public class UserService : IUserService
     {
-        private readonly IDatabase _database;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IAuthService _authService;
 
-        public UserService(IDatabase database, IAuthService authService)
+        public UserService(IUnitOfWork unitOfWork, IAuthService authService)
         {
-            _database = database;
+            _unitOfWork = unitOfWork;
             _authService = authService;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersWithRolesAsync()
         {
-            using var connection = _database.CreateConnection();
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
             var userDict = new Dictionary<int, User>();
 
-            var sql = $@"
-                SELECT u.*, r.* 
+            var users = await connection.QueryAsync<User, Role, User>(
+                @"SELECT u.*, r.* 
                 FROM Users u
                 LEFT JOIN UserRoles ur ON u.UserId = ur.UserId
-                LEFT JOIN Roles r ON ur.RoleId = r.RoleId";
-
-            var users = await connection.QueryAsync<User, Role, User>(
-                sql,
+                LEFT JOIN Roles r ON ur.RoleId = r.RoleId",
                 (user, role) =>
                 {
                     if (!userDict.TryGetValue(user.UserId, out var userEntry))
                     {
                         userEntry = user;
-                        userEntry.UserRoles = [];
+                        userEntry.UserRoles = new List<UserRole>();
                         userDict.Add(user.UserId, userEntry);
                     }
 
@@ -68,12 +67,14 @@ namespace TaskManager.Api.Services
                 splitOn: "RoleId"
             );
 
-            return users.Select(user => user.ToDto());
+            return userDict.Values.Select(u => u.ToDto());
         }
 
         public async Task<UserDto> GetUserByIdAsync(int id)
         {
-            using var connection = _database.CreateConnection();
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
             var userDict = new Dictionary<int, User>();
 
             var users = await connection.QueryAsync<User, Role, User>(
@@ -116,26 +117,23 @@ namespace TaskManager.Api.Services
                 throw new BadRequestException("At least one role must be specified");
             }
 
-            using var connection = _database.CreateConnection();
-            await connection.OpenAsync();
-            using var transaction = connection.BeginTransaction();
-            
+            await _unitOfWork.BeginAsync();
             try
             {
                 // Check if email already exists
-                var existingUser = await connection.QueryFirstOrDefaultAsync<User>(
+                var existingUser = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
                     "SELECT * FROM Users WHERE Email = @Email",
                     new { user.Email },
-                    transaction: transaction);
+                    transaction: _unitOfWork.Transaction);
 
                 if (existingUser != null)
                     throw new BadRequestException("Email already registered");
 
                 // Validate that all role IDs exist
-                var existingRoleIds = await connection.QueryAsync<int>(
+                var existingRoleIds = await _unitOfWork.Connection.QueryAsync<int>(
                     "SELECT RoleId FROM Roles WHERE RoleId IN @RoleIds",
                     new { RoleIds = roleIds },
-                    transaction: transaction);
+                    transaction: _unitOfWork.Transaction);
 
                 var invalidRoleIds = roleIds.Except(existingRoleIds);
                 if (invalidRoleIds.Any())
@@ -164,7 +162,7 @@ namespace TaskManager.Api.Services
                     user.CreatedBy
                 };
 
-                var userId = await connection.ExecuteScalarAsync<int>(sql, parameters, transaction: transaction);
+                var userId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
 
                 // Insert all user roles
                 var userRoles = roleIds.Select(roleId => new
@@ -173,72 +171,92 @@ namespace TaskManager.Api.Services
                     RoleId = roleId
                 });
 
-                await connection.ExecuteAsync(
+                await _unitOfWork.Connection.ExecuteAsync(
                     @"INSERT INTO UserRoles (UserId, RoleId)
                     VALUES (@UserId, @RoleId)",
                     userRoles,
-                    transaction: transaction);
+                    _unitOfWork.Transaction);
 
-                await transaction.CommitAsync();
+                await _unitOfWork.CommitAsync();
                 return userId;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
 
         public async Task UpdateUserAsync(int id, User user)
         {
-            using var connection = _database.CreateConnection();
-            
-            // Check if user exists
-            var existingUser = await GetUserByIdAsync(id);
-
-            // Check if new email is not taken by another user
-            if (!string.Equals(existingUser.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            await _unitOfWork.BeginAsync();
+            try
             {
-                var emailExists = await connection.QueryFirstOrDefaultAsync<User>(
-                    "SELECT * FROM Users WHERE Email = @Email AND UserId != @Id",
-                    new { user.Email, Id = id });
+                // Check if user exists
+                var existingUser = await GetUserByIdAsync(id);
 
-                if (emailExists != null)
-                    throw new BadRequestException("Email already taken");
-            }
-
-            var result = await connection.ExecuteAsync(@"
-                UPDATE Users 
-                SET Email = @Email,
-                    Name = @Name,
-                    IsActive = @IsActive,
-                    UpdatedAt = @UpdatedAt,
-                    UpdatedBy = @UpdatedBy
-                WHERE UserId = @Id",
-                new
+                // Check if new email is not taken by another user
+                if (!string.Equals(existingUser.Email, user.Email, StringComparison.OrdinalIgnoreCase))
                 {
-                    Id = id,
-                    user.Email,
-                    user.Name,
-                    user.IsActive,
-                    UpdatedAt = DateTime.UtcNow,
-                    user.UpdatedBy
-                });
+                    var emailExists = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
+                        "SELECT * FROM Users WHERE Email = @Email AND UserId != @Id",
+                        new { user.Email, Id = id },
+                        _unitOfWork.Transaction);
 
-            if (result == 0)
-                throw new NotFoundException("User not found");
+                    if (emailExists != null)
+                        throw new BadRequestException("Email already taken");
+                }
+
+                var result = await _unitOfWork.Connection.ExecuteAsync(@"
+                    UPDATE Users 
+                    SET Email = @Email,
+                        Name = @Name,
+                        IsActive = @IsActive,
+                        UpdatedAt = @UpdatedAt,
+                        UpdatedBy = @UpdatedBy
+                    WHERE UserId = @Id",
+                    new
+                    {
+                        Id = id,
+                        user.Email,
+                        user.Name,
+                        user.IsActive,
+                        UpdatedAt = DateTime.UtcNow,
+                        user.UpdatedBy
+                    }, _unitOfWork.Transaction);
+
+                if (result == 0)
+                    throw new NotFoundException("User not found");
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception ex) when (!(ex is NotFoundException || ex is BadRequestException))
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteUserAsync(int id)
         {
-            using var connection = _database.CreateConnection();
-            await connection.OpenAsync();
-            var result = await connection.ExecuteAsync(
-                "DELETE FROM Users WHERE UserId = @Id",
-                new { Id = id });
+            await _unitOfWork.BeginAsync();
+            try
+            {
+                var result = await _unitOfWork.Connection.ExecuteAsync(
+                    "DELETE FROM Users WHERE UserId = @Id",
+                    new { Id = id },
+                    _unitOfWork.Transaction);
 
-            if (result == 0)
-                throw new NotFoundException("User not found");
+                if (result == 0)
+                    throw new NotFoundException("User not found");
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
     }
 }

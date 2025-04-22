@@ -15,27 +15,27 @@ namespace TaskManager.Api.Services
 
     public class StatusService : IStatusService
     {
-        private readonly IDatabase _database;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StatusService(IDatabase database)
+        public StatusService(IUnitOfWork unitOfWork)
         {
-            _database = database;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Status>> GetAllStatusesAsync()
         {
-            using var connection = _database.CreateConnection();
-            const string sql = @"
-                SELECT StatusId, Name, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsActive, [Order] 
-                FROM Statuses
-                ORDER BY [Order]";
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
 
-            return await connection.QueryAsync<Status>(sql);
+            return await connection.QueryAsync<Status>(
+                "SELECT StatusId, Name, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsActive, [Order] FROM Statuses ORDER BY [Order]");
         }
 
         public async Task<Status> GetStatusByIdAsync(int id)
         {
-            using var connection = _database.CreateConnection();
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
             const string sql = @"
                 SELECT StatusId, Name, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsActive, [Order] 
                 FROM Statuses 
@@ -51,10 +51,7 @@ namespace TaskManager.Api.Services
 
         public async Task<int> CreateStatusAsync(Status status)
         {
-            using var connection = _database.CreateConnection();
-            await connection.OpenAsync();
-            using var transaction = connection.BeginTransaction();
-
+            await _unitOfWork.BeginAsync();
             try
             {
                 var sql = @"
@@ -71,62 +68,81 @@ namespace TaskManager.Api.Services
                     status.Order
                 };
 
-                var statusId = await connection.ExecuteScalarAsync<int>(sql, parameters, transaction: transaction);
-
-                await transaction.CommitAsync();
+                var statusId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
+                await _unitOfWork.CommitAsync();
                 return statusId;
             }
             catch
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
 
         public async Task UpdateStatusAsync(int id, Status status)
         {
-            using var connection = _database.CreateConnection();
-            const string sql = @"
-                UPDATE Statuses 
-                SET Name = @Name, 
-                    UpdatedAt = @UpdatedAt,
-                    UpdatedBy = @UpdatedBy,
-                    IsActive = @IsActive,
-                    [Order] = @Order
-                WHERE StatusId = @StatusId";
-
-            var parameters = new
+            await _unitOfWork.BeginAsync();
+            try
             {
-                StatusId = id,
-                status.Name,
-                status.UpdatedAt,
-                status.UpdatedBy,
-                status.IsActive,
-                status.Order
-            };
+                const string sql = @"
+                    UPDATE Statuses 
+                    SET Name = @Name, 
+                        UpdatedAt = @UpdatedAt,
+                        UpdatedBy = @UpdatedBy,
+                        IsActive = @IsActive,
+                        [Order] = @Order
+                    WHERE StatusId = @StatusId";
 
-            var rowsAffected = await connection.ExecuteAsync(sql, parameters);
+                var parameters = new
+                {
+                    StatusId = id,
+                    status.Name,
+                    status.UpdatedAt,
+                    status.UpdatedBy,
+                    status.IsActive,
+                    status.Order
+                };
 
-            if (rowsAffected == 0)
-                throw new AppException($"Status with ID {id} not found");
+                var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
+
+                if (rowsAffected == 0)
+                    throw new AppException($"Status with ID {id} not found");
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteStatusAsync(int id)
         {
-            using var connection = _database.CreateConnection();
-            const string sql = @"
-                DELETE FROM Statuses
-                WHERE StatusId = @StatusId";
-
-            var parameters = new
+            await _unitOfWork.BeginAsync();
+            try
             {
-                StatusId = id
-            };
+                const string sql = @"
+                    DELETE FROM Statuses
+                    WHERE StatusId = @StatusId";
 
-            var rowsAffected = await connection.ExecuteAsync(sql, parameters);
+                var parameters = new
+                {
+                    StatusId = id
+                };
 
-            if (rowsAffected == 0)
-                throw new AppException($"Status with ID {id} not found");
+                var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
+
+                if (rowsAffected == 0)
+                    throw new AppException($"Status with ID {id} not found");
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
     }
 }

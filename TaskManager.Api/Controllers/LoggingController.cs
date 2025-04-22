@@ -12,10 +12,12 @@ namespace TaskManager.Api.Controllers
     public class LoggingController : ControllerBase
     {
         private readonly ILoggingService _loggingService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public LoggingController(ILoggingService loggingService)
+        public LoggingController(ILoggingService loggingService, IUnitOfWork unitOfWork)
         {
             _loggingService = loggingService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet("task-status")]
@@ -38,5 +40,9 @@ namespace TaskManager.Api.Controllers
             var logs = await _loggingService.GetLoginLogsAsync();
             return Ok(logs);
         }
+
+        // Note: The logging methods for task status changes, activity, and login attempts
+        // are called from other services as part of their transactions, so we don't need
+        // to manage transactions here.
     }
 }

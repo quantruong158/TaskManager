@@ -4,7 +4,6 @@ using TaskManager.Api.Models;
 using TaskManager.Api.Models.DTOs;
 using TaskManager.Api.Services;
 using TaskManager.Api.Exceptions;
-using System.Security.Claims;
 using TaskManager.Api.Security;
 
 namespace TaskManager.Api.Controllers
@@ -15,10 +14,12 @@ namespace TaskManager.Api.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
+        private readonly IUnitOfWork _unitOfWork;
         
-        public TaskController(ITaskService taskService)
+        public TaskController(ITaskService taskService, IUnitOfWork unitOfWork)
         {
             _taskService = taskService;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -46,51 +47,95 @@ namespace TaskManager.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<int>> CreateTask([FromBody] CreateTaskRequest request)
         {
-            var userId = User.GetUserId();
-            var task = new WorkTask
+            try
             {
-                Title = request.Title,
-                Description = request.Description,
-                Priority = request.Priority,
-                StatusId = request.StatusId,
-                AssignedTo = request.AssignedTo
-            };
+                await _unitOfWork.BeginAsync();
+                
+                var userId = User.GetUserId();
+                var task = new WorkTask
+                {
+                    Title = request.Title,
+                    Description = request.Description,
+                    Priority = request.Priority,
+                    StatusId = request.StatusId,
+                    AssignedTo = request.AssignedTo
+                };
 
-            var taskId = await _taskService.CreateTaskAsync(task, userId);
-            return Ok(taskId);
+                var taskId = await _taskService.CreateTaskAsync(task, userId);
+                await _unitOfWork.CommitAsync();
+                
+                return Ok(taskId);
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateTask(int id, [FromBody] UpdateTaskRequest request)
         {
-            var userId = User.GetUserId();
-            var task = new WorkTask
+            try
             {
-                Title = request.Title,
-                Description = request.Description,
-                Priority = request.Priority,
-                AssignedTo = request.AssignedTo
-            };
+                await _unitOfWork.BeginAsync();
 
-            await _taskService.UpdateTaskAsync(id, task, userId);
-            return NoContent();
+                var userId = User.GetUserId();
+                var task = new WorkTask
+                {
+                    Title = request.Title,
+                    Description = request.Description,
+                    Priority = request.Priority,
+                    AssignedTo = request.AssignedTo
+                };
+
+                await _taskService.UpdateTaskAsync(id, task, userId);
+                await _unitOfWork.CommitAsync();
+                
+                return NoContent();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         [HttpPut("{id}/status")]
         public async Task<ActionResult> ChangeStatus(int id, [FromBody] ChangeTaskStatusRequest request)
         {
-            var userId = User.GetUserId();
+            try
+            {
+                await _unitOfWork.BeginAsync();
 
-            await _taskService.ChangeTaskStatusAsync(id, request.NewStatusId, userId);
-
-            return NoContent();
+                var userId = User.GetUserId();
+                await _taskService.ChangeTaskStatusAsync(id, request.NewStatusId, userId);
+                
+                await _unitOfWork.CommitAsync();
+                return NoContent();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTask(int id)
         {
-            await _taskService.DeleteTaskAsync(id);
-            return NoContent();
+            try
+            {
+                await _unitOfWork.BeginAsync();
+                await _taskService.DeleteTaskAsync(id);
+                await _unitOfWork.CommitAsync();
+                return NoContent();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
     }
 

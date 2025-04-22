@@ -12,16 +12,21 @@ namespace TaskManager.Api.Controllers;
 public class StatusController : ControllerBase
 {
     private readonly IStatusService _statusService;
-    public StatusController(IStatusService statusService)
+    private readonly IUnitOfWork _unitOfWork;
+
+    public StatusController(IStatusService statusService, IUnitOfWork unitOfWork)
     {
         _statusService = statusService;
+        _unitOfWork = unitOfWork;
     }
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
     {
         var statuses = await _statusService.GetAllStatusesAsync();
         return Ok(statuses);
     }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Status>> GetStatus(int id)
     {
@@ -33,41 +38,73 @@ public class StatusController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<int>> CreateStatus([FromBody] CreateStatusRequest req)
     {
-        var status = new Status
+        try
         {
-            Name = req.Name,
-            IsActive = req.IsActive,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = User.GetUserId()
-        };
+            await _unitOfWork.BeginAsync();
 
-        var statusId = await _statusService.CreateStatusAsync(status);
-        return Ok(statusId);
+            var status = new Status
+            {
+                Name = req.Name,
+                IsActive = req.IsActive,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = User.GetUserId()
+            };
+
+            var statusId = await _statusService.CreateStatusAsync(status);
+            await _unitOfWork.CommitAsync();
+            return Ok(statusId);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     [Authorize("AdminOnly")]
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest req)
     {
-        var status = new Status
+        try
         {
-            StatusId = id,
-            Name = req.Name,
-            IsActive = req.IsActive,
-            UpdatedAt = DateTime.UtcNow,
-            UpdatedBy = User.GetUserId()
-        };
+            await _unitOfWork.BeginAsync();
 
-        await _statusService.UpdateStatusAsync(id, status);
-        return NoContent();
+            var status = new Status
+            {
+                StatusId = id,
+                Name = req.Name,
+                IsActive = req.IsActive,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = User.GetUserId()
+            };
+
+            await _statusService.UpdateStatusAsync(id, status);
+            await _unitOfWork.CommitAsync();
+            return NoContent();
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     [Authorize("AdminOnly")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteStatus(int id)
     {
-        await _statusService.DeleteStatusAsync(id);
-        return NoContent();
+        try
+        {
+            await _unitOfWork.BeginAsync();
+            await _statusService.DeleteStatusAsync(id);
+            await _unitOfWork.CommitAsync();
+            return NoContent();
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 
     public class CreateStatusRequest
