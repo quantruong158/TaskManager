@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Api.Models;
+using TaskManager.Api.Models.DTOs;
 using TaskManager.Api.Security;
 using TaskManager.Api.Services;
 
@@ -38,7 +39,7 @@ public class StatusController : ControllerBase
 
     [Authorize("AdminOnly")]
     [HttpPost]
-    public async Task<ActionResult<int>> CreateStatus([FromBody] CreateStatusRequest req)
+    public async Task<ActionResult<int>> CreateStatus([FromBody] CreateStatusRequestDto req)
     {
         try
         {
@@ -75,7 +76,7 @@ public class StatusController : ControllerBase
 
     [Authorize("AdminOnly")]
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequest req)
+    public async Task<ActionResult> UpdateStatus(int id, [FromBody] UpdateStatusRequestDto req)
     {
         try
         {
@@ -137,17 +138,5 @@ public class StatusController : ControllerBase
             await _unitOfWork.RollbackAsync();
             throw;
         }
-    }
-
-    public class CreateStatusRequest
-    {
-        public required string Name { get; set; }
-        public bool IsActive { get; set; }
-    }
-
-    public class UpdateStatusRequest
-    {
-        public required string Name { get; set; }
-        public bool IsActive { get; set; }
     }
 }

@@ -18,4 +18,20 @@ namespace TaskManager.Api.Models.DTOs
         public DateTime? UpdatedAt { get; set; }
         public string? UpdatedBy { get; set; }
     }
+
+    public class CreateUserRequestDto
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string Name { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
+    }
+
+    public class UpdateUserRequestDto
+    {
+        public required string Email { get; set; }
+        public required string Name { get; set; }
+        public bool IsActive { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
+    }
 }

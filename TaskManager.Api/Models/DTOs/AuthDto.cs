@@ -1,31 +1,31 @@
-namespace TaskManager.Api.Models.Auth
+﻿namespace TaskManager.Api.Models.DTOs
 {
-    public class LoginRequest
+    public class LoginRequestDto
     {
         public required string Email { get; set; }
         public required string Password { get; set; }
     }
 
-    public class RegisterRequest
+    public class RegisterRequestDto
     {
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string Name { get; set; }
     }
 
-    public class AuthResponse
+    public class AuthResponseDto
     {
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
         public int ExpiresIn { get; set; } // Token expiration time in seconds
     }
 
-    public class RefreshTokenRequest
+    public class RefreshTokenRequestDto
     {
         public required string RefreshToken { get; set; }
     }
-    
-    public class RegisterResponse
+
+    public class RegisterResponseDto
     {
         public bool Success { get; set; }
         public string? Message { get; set; }

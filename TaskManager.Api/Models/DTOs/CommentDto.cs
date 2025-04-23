@@ -1,6 +1,6 @@
 namespace TaskManager.Api.Models.DTOs
 {
-    public class CommentRequestDto
+    public class CreateCommentRequestDto
     {
         public int TaskId { get; set; }
         public required string Content { get; set; }

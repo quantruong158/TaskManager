@@ -46,7 +46,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> CreateComment(CommentRequestDto request)
+        public async Task<ActionResult<int>> CreateComment(CreateCommentRequestDto request)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateComment(int id, CommentRequestDto request)
+        public async Task<IActionResult> UpdateComment(int id, CreateCommentRequestDto request)
         {
             try
             {

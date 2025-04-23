@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManager.Api.Models.Auth;
 using TaskManager.Api.Services;
 using TaskManager.Api.Models;
 using TaskManager.Api.Exceptions;
+using TaskManager.Api.Models.DTOs;
 
 namespace TaskManager.Api.Controllers
 {
@@ -32,7 +32,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace TaskManager.Api.Controllers
                 int tokenExpirationInMinutes = _configuration.GetSection("JwtSettings").GetValue<int>("DurationInMinutes");
                 int expiresIn = tokenExpirationInMinutes * 60;
 
-                return Ok(new AuthResponse
+                return Ok(new AuthResponseDto
                 {
                     AccessToken = token,
                     RefreshToken = refreshToken.Token,
@@ -92,7 +92,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<RegisterResponse>> Register([FromBody] RegisterRequest request)
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterRequestDto request)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace TaskManager.Api.Controllers
                 await _authService.RegisterAsync(request);
                 await _unitOfWork.CommitAsync();
 
-                return Ok(new RegisterResponse
+                return Ok(new RegisterResponseDto
                 {
                     Success = true,
                     Message = "Registration successful"
@@ -114,7 +114,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace TaskManager.Api.Controllers
                 int tokenExpirationInMinutes = _configuration.GetSection("JwtSettings").GetValue<int>("DurationInMinutes");
                 int expiresIn = tokenExpirationInMinutes * 60;
 
-                return Ok(new AuthResponse
+                return Ok(new AuthResponseDto
                 {
                     AccessToken = newAccessToken,
                     RefreshToken = newRefreshToken.Token,
@@ -165,7 +165,7 @@ namespace TaskManager.Api.Controllers
 
         [Authorize]
         [HttpPost("revoke-token")]
-        public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequest request)
+        public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequestDto request)
         {
             try
             {

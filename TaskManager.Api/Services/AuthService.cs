@@ -1,15 +1,15 @@
 using System.Data;
 using Dapper;
 using TaskManager.Api.Models;
-using TaskManager.Api.Models.Auth;
 using TaskManager.Api.Exceptions;
+using TaskManager.Api.Models.DTOs;
 
 namespace TaskManager.Api.Services
 {
     public interface IAuthService
     {
         Task<User?> AuthenticateAsync(string email, string password);
-        Task<User> RegisterAsync(RegisterRequest request);
+        Task<User> RegisterAsync(RegisterRequestDto request);
         Task<IEnumerable<string>> GetUserRolesAsync(int userId);
         Task<IEnumerable<string>> GetUserPermissionsAsync(int userId);
         Task<RefreshToken> SaveRefreshTokenAsync(RefreshToken refreshToken);
@@ -41,7 +41,7 @@ namespace TaskManager.Api.Services
             return isPasswordValid ? user : null;
         }
 
-        public async Task<User> RegisterAsync(RegisterRequest request)
+        public async Task<User> RegisterAsync(RegisterRequestDto request)
         {
             // Check if user with the same email already exists
             var existingUser = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(

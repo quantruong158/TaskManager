@@ -41,18 +41,18 @@ namespace TaskManager.Api.Controllers
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskResponseDto>> GetTaskById(int id)
-        {            
+        {
             var task = await _taskService.GetTaskByIdAsync(id);
             return Ok(task);
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> CreateTask([FromBody] CreateTaskRequest request)
+        public async Task<ActionResult<int>> CreateTask([FromBody] CreateTaskRequestDto request)
         {
             try
             {
                 await _unitOfWork.BeginAsync();
-                
+
                 var userId = User.GetUserId();
                 var task = new WorkTask
                 {
@@ -65,8 +65,8 @@ namespace TaskManager.Api.Controllers
 
                 var taskId = await _taskService.CreateTaskAsync(task, userId);
 
-                await _loggingService.LogActivityAsync(new ActivityLog 
-                { 
+                await _loggingService.LogActivityAsync(new ActivityLog
+                {
                     UserId = User.GetUserId(),
                     Action = "Create",
                     TargetTable = "Tasks",
@@ -75,7 +75,7 @@ namespace TaskManager.Api.Controllers
                 });
 
                 await _unitOfWork.CommitAsync();
-                
+
                 return Ok(taskId);
             }
             catch
@@ -86,7 +86,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateTask(int id, [FromBody] UpdateTaskRequest request)
+        public async Task<ActionResult> UpdateTask(int id, [FromBody] UpdateTaskRequestDto request)
         {
             try
             {
@@ -103,8 +103,8 @@ namespace TaskManager.Api.Controllers
 
                 await _taskService.UpdateTaskAsync(id, task, userId);
 
-                await _loggingService.LogActivityAsync(new ActivityLog 
-                { 
+                await _loggingService.LogActivityAsync(new ActivityLog
+                {
                     UserId = User.GetUserId(),
                     Action = "Update",
                     TargetTable = "Tasks",
@@ -113,7 +113,7 @@ namespace TaskManager.Api.Controllers
                 });
 
                 await _unitOfWork.CommitAsync();
-                
+
                 return NoContent();
             }
             catch
@@ -124,7 +124,7 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpPut("{id}/status")]
-        public async Task<ActionResult> ChangeStatus(int id, [FromBody] ChangeTaskStatusRequest request)
+        public async Task<ActionResult> ChangeStatus(int id, [FromBody] ChangeTaskStatusRequestDto request)
         {
             try
             {
@@ -132,9 +132,9 @@ namespace TaskManager.Api.Controllers
 
                 var userId = User.GetUserId();
                 await _taskService.ChangeTaskStatusAsync(id, request.NewStatusId, userId);
-                
-                await _loggingService.LogActivityAsync(new ActivityLog 
-                { 
+
+                await _loggingService.LogActivityAsync(new ActivityLog
+                {
                     UserId = User.GetUserId(),
                     Action = "ChangeStatus",
                     TargetTable = "Tasks",
@@ -160,8 +160,8 @@ namespace TaskManager.Api.Controllers
                 await _unitOfWork.BeginAsync();
                 await _taskService.DeleteTaskAsync(id);
 
-                await _loggingService.LogActivityAsync(new ActivityLog 
-                { 
+                await _loggingService.LogActivityAsync(new ActivityLog
+                {
                     UserId = User.GetUserId(),
                     Action = "Delete",
                     TargetTable = "Tasks",
@@ -178,27 +178,5 @@ namespace TaskManager.Api.Controllers
                 throw;
             }
         }
-    }
-
-    public class CreateTaskRequest
-    {
-        public required string Title { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public required string Priority { get; set; }
-        public int StatusId { get; set; }
-        public int AssignedTo { get; set; }
-    }
-
-    public class UpdateTaskRequest
-    {
-        public required string Title { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public required string Priority { get; set; }
-        public int? AssignedTo { get; set; }
-    }
-
-    public class ChangeTaskStatusRequest
-    {
-        public required int NewStatusId { get; set; }
     }
 }

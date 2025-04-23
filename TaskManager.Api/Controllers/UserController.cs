@@ -39,7 +39,7 @@ namespace TaskManager.Api.Controllers
 
         [HttpPost]
         [Authorize("AdminOnly")]
-        public async Task<ActionResult<int>> CreateUser([FromBody] CreateUserRequest request)
+        public async Task<ActionResult<int>> CreateUser([FromBody] CreateUserRequestDto request)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace TaskManager.Api.Controllers
 
         [HttpPut("{id}")]
         [Authorize("AdminOnly")]
-        public async Task<ActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        public async Task<ActionResult> UpdateUser(int id, [FromBody] UpdateUserRequestDto request)
         {
             try
             {
@@ -140,21 +140,5 @@ namespace TaskManager.Api.Controllers
                 throw;
             }
         }
-    }
-
-    public class CreateUserRequest
-    {
-        public required string Email { get; set; }
-        public required string Password { get; set; }
-        public required string Name { get; set; }
-        public List<int> RoleIds { get; set; } = new List<int>();
-    }
-
-    public class UpdateUserRequest
-    {
-        public required string Email { get; set; }
-        public required string Name { get; set; }
-        public bool IsActive { get; set; }
-        public List<int> RoleIds { get; set; } = new List<int>();
     }
 }

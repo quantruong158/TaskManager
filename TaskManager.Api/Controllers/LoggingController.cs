@@ -41,9 +41,5 @@ namespace TaskManager.Api.Controllers
             var logs = await _loggingService.GetLoginLogsAsync();
             return Ok(logs);
         }
-
-        // Note: The logging methods for task status changes, activity, and login attempts
-        // are called from other services as part of their transactions, so we don't need
-        // to manage transactions here.
     }
 }
