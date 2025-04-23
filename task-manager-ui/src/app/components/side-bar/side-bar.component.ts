@@ -63,6 +63,6 @@ export class SideBarComponent implements OnChanges {
       { icon: 'settings', label: 'System Settings', route: '/admin/settings' },
     ];
 
-    this.navItems = this.role === 'Admin' ? [...commonItems, ...adminItems] : commonItems;
+    this.navItems = this.role === 'Admin' ? adminItems : commonItems;
   }
 }
