@@ -8,7 +8,7 @@
         <input matInput [formControl]="titleControl" required />
         @if (titleControl.errors?.['required']) {
         <mat-error>Title is required</mat-error>
-        } >
+        }
       </mat-form-field>
 
       <mat-form-field appearance="fill">
@@ -23,15 +23,15 @@
       <mat-form-field appearance="fill">
         <mat-label>Priority</mat-label>
         <mat-select [formControl]="priorityControl" required>
-            @for (priority of priorityLevels; track priority) {
-            <mat-option [value]="priority.toLowerCase()">
-              {{ priority }}
-            </mat-option>
-            }
+          @for (priority of priorityLevels; track priority) {
+          <mat-option [value]="priority.toLowerCase()">
+            {{ priority }}
+          </mat-option>
+          }
         </mat-select>
         @if (priorityControl.errors?.['required']) {
         <mat-error>Priority is required</mat-error>
-        } >
+        }
       </mat-form-field>
     </div>
   </mat-dialog-content>

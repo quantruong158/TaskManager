@@ -14,9 +14,8 @@
             <mat-label>Title</mat-label>
             <input matInput [formControl]="titleControl" required />
             @if (titleControl.errors?.['required']) {
-              <mat-error>Title is required</mat-error>
+            <mat-error>Title is required</mat-error>
             }
-            >
           </mat-form-field>
 
           <mat-form-field appearance="fill">
@@ -31,30 +30,29 @@
           <mat-form-field appearance="fill">
             <mat-label>Priority</mat-label>
             <mat-select [formControl]="priorityControl" required>
-                @for (priority of priorityLevels; track priority) {
-                <mat-option [value]="priority.toLowerCase()">
-                  {{ priority }}
-                </mat-option>
-                }
+              @for (priority of priorityLevels; track priority) {
+              <mat-option [value]="priority.toLowerCase()">
+                {{ priority }}
+              </mat-option>
+              }
             </mat-select>
             @if (priorityControl.errors?.['required']) {
-              <mat-error>Priority is required</mat-error>
+            <mat-error>Priority is required</mat-error>
             }
-            >
           </mat-form-field>
 
           <mat-form-field appearance="fill">
             <mat-label>Assign To</mat-label>
             <mat-select [formControl]="assigneeControl">
               <mat-option [value]="null">--- Unassigned ---</mat-option>
-                @for (user of users; track user.userId) {
-                <mat-option [value]="user.userId">
-                  <span>{{ user.name }}</span
-                  ><span style="color: darkgrey"
+              @for (user of users; track user.userId) {
+              <mat-option [value]="user.userId">
+                <span>{{ user.name }}</span
+                ><span style="color: darkgrey"
                   >{{ " ✉ " }}{{ user.email }}
-                  </span>
-                </mat-option>
-                }
+                </span>
+              </mat-option>
+              }
             </mat-select>
           </mat-form-field>
         </div>
