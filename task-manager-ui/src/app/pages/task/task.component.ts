@@ -36,8 +36,9 @@ import { TaskBoxComponent } from '../../components/task-box/task-box.component';
   styleUrl: './task.component.css',
 })
 export class TaskComponent {
-  private tasksByStatus = new Map<number, Task[]>();
+  public tasksByStatus = new Map<number, Task[]>();
   public statuses = signal<Status[]>([]);
+  public connectedListsMap = new Map<number, string[]>();
 
   constructor(
     private statusService: StatusService,
@@ -50,6 +51,12 @@ export class TaskComponent {
 
       this.statuses().forEach((status) => {
         this.tasksByStatus.set(status.statusId, []);
+        this.connectedListsMap.set(
+          status.statusId,
+          res
+            .filter((s) => s.statusId !== status.statusId)
+            .map((s) => 'list-' + s.statusId)
+        );
       });
 
       this.organizeTasks();
@@ -74,16 +81,6 @@ export class TaskComponent {
         this.tasksByStatus.get(statusId)!.push(task);
       }
     });
-  }
-
-  public getTasksByStatus(statusId: number): Task[] {
-    return this.tasksByStatus.get(statusId) || [];
-  }
-
-  public getConnectedLists(currentStatusId: number): string[] {
-    return this.statuses()
-      .filter((status) => status.statusId !== currentStatusId)
-      .map((status) => 'list-' + status.statusId);
   }
 
   public drop(event: CdkDragDrop<Task[]>) {

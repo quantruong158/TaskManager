@@ -15,13 +15,15 @@
           <div
             cdkDropList
             [id]="'list-' + status.statusId"
-            [cdkDropListData]="getTasksByStatus(status.statusId)"
-            [cdkDropListConnectedTo]="getConnectedLists(status.statusId)"
+            [cdkDropListData]="tasksByStatus.get(status.statusId) || []"
+            [cdkDropListConnectedTo]="
+              connectedListsMap.get(status.statusId) || []
+            "
             class="task-list"
             (cdkDropListDropped)="drop($event)"
           >
-            @for (task of getTasksByStatus(status.statusId); track task.taskId)
-            {
+            @for (task of tasksByStatus.get(status.statusId) || []; track
+            task.taskId) {
             <div cdkDrag style="overflow: visible">
               <task-box [task]="task"></task-box>
             </div>
