@@ -29,7 +29,7 @@ import { UserService } from '../../core/services/user.service';
   styleUrl: './create-user-dialog.component.css',
 })
 export class CreateUserDialogComponent {
-  availableRoles = [
+  public availableRoles = [
     { roleId: 1, roleName: 'User' },
     { roleId: 2, roleName: 'Admin' },
   ];
@@ -50,14 +50,14 @@ export class CreateUserDialogComponent {
     [Validators.required]
   );
 
-  createUserForm: FormGroup = new FormGroup({
+  public createUserForm: FormGroup = new FormGroup({
     name: this.nameControl,
     email: this.emailControl,
     password: this.passwordControl,
     roleIds: this.roleIdsControl,
   });
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (this.createUserForm.valid) {
       this.dialogRef.close(this.createUserForm.value);
     }

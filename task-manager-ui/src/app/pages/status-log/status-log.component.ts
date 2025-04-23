@@ -4,7 +4,7 @@ import {
   GenericTableComponent,
 } from '../../shared/components/generic-table/generic-table.component';
 import { TaskStatusLog } from '../../core/models/logging.model';
-import { LoggingService } from '../../core/services/logging-service';
+import { LoggingService } from '../../core/services/logging.service';
 import { formatDate } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';

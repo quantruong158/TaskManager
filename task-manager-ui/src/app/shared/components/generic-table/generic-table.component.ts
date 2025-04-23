@@ -89,7 +89,7 @@ export class GenericTableComponent implements OnInit, OnChanges {
     }
   }
 
-  onRowClick(row: any) {
+  public onRowClick(row: any) {
     if (this.selectedRow === row) {
       this.selectedRow = null;
     } else {
@@ -98,16 +98,16 @@ export class GenericTableComponent implements OnInit, OnChanges {
     this.rowClick.emit(row);
   }
 
-  onPageChange(event: PageEvent) {
+  public onPageChange(event: PageEvent) {
     console.log(event);
     this.pageChange.emit(event);
   }
 
-  onSortChange(event: Sort) {
+  public onSortChange(event: Sort) {
     this.sortChange.emit(event);
   }
 
-  formatCellValue(value: any, column: ColumnDef): string {
+  public formatCellValue(value: any, column: ColumnDef): string {
     if (column.formatter) {
       return column.formatter(value);
     }
@@ -115,9 +115,5 @@ export class GenericTableComponent implements OnInit, OnChanges {
       return '';
     }
     return value.toString();
-  }
-
-  isSelected(row: any): boolean {
-    return this.selectedRow === row;
   }
 }

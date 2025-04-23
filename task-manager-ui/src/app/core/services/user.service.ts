@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CreateUserDto, UpdateUserDto, User } from '../models/user.model';
+import {
+  CreateUserRequest,
+  UpdateUserRequest,
+  User,
+} from '../models/user.model';
 import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../../shared/models/pagination.model';
 
@@ -21,13 +25,13 @@ export class UserService {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  public createUser(createUserDto: CreateUserDto): Observable<User> {
+  public createUser(createUserDto: CreateUserRequest): Observable<User> {
     return this.http.post<User>(this.apiUrl, createUserDto);
   }
 
   public updateUser(
     id: number,
-    updateUserDto: UpdateUserDto
+    updateUserDto: UpdateUserRequest
   ): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, updateUserDto);
   }

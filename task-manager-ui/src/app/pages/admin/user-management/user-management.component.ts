@@ -70,7 +70,7 @@ export class UserManagementComponent implements OnInit {
 
   ngOnInit() {}
 
-  getUsers() {
+  private getUsers() {
     this.userService.getUsers().subscribe({
       next: (response: User[]) => {
         this.users.set(response);
@@ -82,7 +82,7 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  openCreateUserDialog(): void {
+  public openCreateUserDialog(): void {
     const dialogRef = this.dialog.open(CreateUserDialogComponent, {
       width: '500px',
     });
@@ -101,7 +101,7 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  openUpdateUserDialog(): void {
+  public openUpdateUserDialog(): void {
     const dialogRef = this.dialog.open(UpdateUserDialogComponent, {
       width: '500px',
       data: this.selectedUser,
@@ -125,7 +125,7 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  handleRowClick(row: User) {
+  public handleRowClick(row: User) {
     if (this.selectedUser === row) {
       this.selectedUser = null;
       return;

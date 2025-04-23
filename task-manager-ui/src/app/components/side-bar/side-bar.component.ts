@@ -28,7 +28,7 @@ export class SideBarComponent implements OnChanges {
   @Input() isExpanded = true;
   @Input() role: string | null = null;
 
-  navItems: NavItem[] = [];
+  public navItems: NavItem[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['role']) {
@@ -63,6 +63,6 @@ export class SideBarComponent implements OnChanges {
       { icon: 'settings', label: 'System Settings', route: '/admin/settings' },
     ];
 
-    this.navItems = this.role === 'Admin' ? adminItems : commonItems;
+    this.navItems = this.role === 'Admin' ? [...commonItems, ...adminItems] : commonItems;
   }
 }

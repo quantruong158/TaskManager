@@ -23,9 +23,11 @@
     <mat-form-field appearance="outline">
       <mat-label>Roles</mat-label>
       <mat-select [formControl]="roleIdsControl" multiple>
-        <mat-option *ngFor="let role of availableRoles" [value]="role.roleId">
-          {{ role.roleName }}
-        </mat-option>
+        @for (role of availableRoles; track role.roleId) {
+          <mat-option [value]="role.roleId">
+            {{ role.roleName }}
+          </mat-option>
+        }
       </mat-select>
       @if (roleIdsControl.errors?.['required']) {
       <mat-error> At least one role must be selected </mat-error>

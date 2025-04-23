@@ -15,14 +15,14 @@ export interface User {
   updatedBy: string;
 }
 
-export interface CreateUserDto {
+export interface CreateUserRequest {
   email: string;
   password: string;
   name: string;
   roleIds: number[];
 }
 
-export interface UpdateUserDto {
+export interface UpdateUserRequest {
   email: string;
   name: string;
   roleIds: number[];

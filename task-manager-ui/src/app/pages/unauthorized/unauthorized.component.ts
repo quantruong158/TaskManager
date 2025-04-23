@@ -13,11 +13,11 @@ import { Location } from '@angular/common';
 export class UnauthorizedComponent {
   constructor(private router: Router, private location: Location) {}
 
-  goBack() {
+  public goBack() {
     this.location.back();
   }
 
-  goToLogin() {
+  public goToLogin() {
     this.router.navigate(['/login']);
   }
 }

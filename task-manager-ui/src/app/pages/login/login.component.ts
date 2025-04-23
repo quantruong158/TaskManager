@@ -38,15 +38,18 @@ export class LoginComponent {
     private toastr: ToastrService
   ) {}
 
-  emailControl = new FormControl('', [Validators.required, Validators.email]);
-  passwordControl = new FormControl('', [Validators.required]);
+  public emailControl = new FormControl('', [
+    Validators.required,
+    Validators.email,
+  ]);
+  public passwordControl = new FormControl('', [Validators.required]);
 
-  loginForm = new FormGroup({
+  public loginForm = new FormGroup({
     email: this.emailControl,
     password: this.passwordControl,
   });
 
-  onSubmit() {
+  public onSubmit() {
     if (this.loginForm.invalid || this.isLoading) {
       return;
     }

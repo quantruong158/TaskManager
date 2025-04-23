@@ -28,8 +28,8 @@ import { SideBarComponent } from '../../components/side-bar/side-bar.component';
   ],
 })
 export class AuthorizedComponent implements OnInit {
-  currentUser$!: Observable<UserInfo | null>;
-  isExpanded = true;
+  public currentUser$!: Observable<UserInfo | null>;
+  public isExpanded = true;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -37,11 +37,11 @@ export class AuthorizedComponent implements OnInit {
     this.currentUser$ = this.authService.currentUser$;
   }
 
-  toggleSidenav() {
+  public toggleSidenav() {
     this.isExpanded = !this.isExpanded;
   }
 
-  logout() {
+  public logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
   }

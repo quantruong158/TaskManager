@@ -50,7 +50,7 @@ export class StatusManagementComponent {
     this.getStatuses();
   }
 
-  getStatuses() {
+  private getStatuses() {
     this.statusService.getAllStatuses().subscribe({
       next: (response: Status[]) => {
         this.statuses.set(response);
@@ -61,7 +61,7 @@ export class StatusManagementComponent {
     });
   }
 
-  handleRowClick(row: Status) {
+  public handleRowClick(row: Status) {
     if (this.selectedStatus === row) {
       this.selectedStatus = null;
       return;
@@ -70,13 +70,13 @@ export class StatusManagementComponent {
     this.selectedStatus = row;
   }
 
-  handlePageChange(event: PageEvent) {}
+  public handlePageChange(event: PageEvent) {}
 
-  handleSortChange(event: Sort) {
+  public handleSortChange(event: Sort) {
     console.log('Sort changed:', event);
   }
 
-  openCreateDialog() {
+  public openCreateDialog() {
     const dialogRef = this.dialog.open(CreateStatusDialogComponent, {
       width: '500px',
     });

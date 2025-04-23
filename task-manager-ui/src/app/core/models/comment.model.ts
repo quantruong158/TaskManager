@@ -1,19 +1,19 @@
-export interface CommentRequest {
+export interface CreateCommentRequest {
   taskId: number;
   content: string;
 }
 
-export interface UserCommentDto {
+export interface UserComment {
   userId: number;
   name: string;
   email: string;
 }
 
-export interface CommentResponse {
+export interface Comment {
   commentId: number;
   taskId: number;
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  user: UserCommentDto;
+  user: UserComment;
 }

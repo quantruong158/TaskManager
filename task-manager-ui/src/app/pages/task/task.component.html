@@ -14,7 +14,7 @@
           <p class="status-label">{{ status.name }}</p>
           <div
             cdkDropList
-            [id]="'list-' + status.statusId"
+            [i  ]="'list-' + status.statusId"
             [cdkDropListData]="getTasksByStatus(status.statusId)"
             [cdkDropListConnectedTo]="getConnectedLists(status.statusId)"
             class="task-list"

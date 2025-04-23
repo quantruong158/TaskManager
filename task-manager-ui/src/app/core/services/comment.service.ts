@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CommentRequest, CommentResponse } from '../models/comment.model';
+import { CreateCommentRequest, Comment } from '../models/comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,20 +12,20 @@ export class CommentService {
 
   constructor(private http: HttpClient) {}
 
-  getComments(taskId?: number): Observable<CommentResponse[]> {
+  getComments(taskId?: number): Observable<Comment[]> {
     const url = taskId ? `${this.apiUrl}?taskId=${taskId}` : this.apiUrl;
-    return this.http.get<CommentResponse[]>(url);
+    return this.http.get<Comment[]>(url);
   }
 
-  getCommentById(id: number): Observable<CommentResponse> {
-    return this.http.get<CommentResponse>(`${this.apiUrl}/${id}`);
+  getCommentById(id: number): Observable<Comment> {
+    return this.http.get<Comment>(`${this.apiUrl}/${id}`);
   }
 
-  createComment(comment: CommentRequest): Observable<number> {
+  createComment(comment: CreateCommentRequest): Observable<number> {
     return this.http.post<number>(this.apiUrl, comment);
   }
 
-  updateComment(id: number, comment: CommentRequest): Observable<void> {
+  updateComment(id: number, comment: CreateCommentRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}`, comment);
   }
 

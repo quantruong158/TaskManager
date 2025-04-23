@@ -30,7 +30,7 @@
     <mat-row
       *matRowDef="let row; columns: displayedColumns"
       (click)="onRowClick(row)"
-      [class.selected-row]="isSelected(row)"
+      [class.selected-row]="this.selectedRow === row"
     >
     </mat-row>
   </mat-table>

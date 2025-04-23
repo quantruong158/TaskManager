@@ -5,7 +5,7 @@ import {
 } from '../../../shared/components/generic-table/generic-table.component';
 import { LoginLog } from '../../../core/models/logging.model';
 import { formatDate } from '@angular/common';
-import { LoggingService } from '../../../core/services/logging-service';
+import { LoggingService } from '../../../core/services/logging.service';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({

@@ -19,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { RouterLink } from '@angular/router';
-import { TaskBoxComponent } from "../../components/task-box/task-box.component";
+import { TaskBoxComponent } from '../../components/task-box/task-box.component';
 
 @Component({
   selector: 'app-task',
@@ -30,14 +30,15 @@ import { TaskBoxComponent } from "../../components/task-box/task-box.component";
     CdkDrag,
     MatGridListModule,
     MatButtonModule,
-    TaskBoxComponent
-],
+    TaskBoxComponent,
+  ],
   templateUrl: './task.component.html',
   styleUrl: './task.component.css',
 })
 export class TaskComponent {
   private tasksByStatus = new Map<number, Task[]>();
   public statuses = signal<Status[]>([]);
+
   constructor(
     private statusService: StatusService,
     private taskService: TaskService,
@@ -75,17 +76,17 @@ export class TaskComponent {
     });
   }
 
-  getTasksByStatus(statusId: number): Task[] {
+  public getTasksByStatus(statusId: number): Task[] {
     return this.tasksByStatus.get(statusId) || [];
   }
 
-  getConnectedLists(currentStatusId: number): string[] {
+  public getConnectedLists(currentStatusId: number): string[] {
     return this.statuses()
       .filter((status) => status.statusId !== currentStatusId)
       .map((status) => 'list-' + status.statusId);
   }
 
-  drop(event: CdkDragDrop<Task[]>) {
+  public drop(event: CdkDragDrop<Task[]>) {
     const movedTask = event.previousContainer.data[event.previousIndex];
     const newStatusId = parseInt(event.container.id.split('-')[1]);
 

@@ -36,7 +36,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './create-task-dialog.component.css',
 })
 export class CreateTaskDialogComponent {
-  priorityLevels = ['Low', 'Medium', 'High'];
+  public priorityLevels = ['Low', 'Medium', 'High'];
 
   constructor(
     private taskService: TaskService,
@@ -50,13 +50,13 @@ export class CreateTaskDialogComponent {
     Validators.required,
   ]);
 
-  createTaskForm: FormGroup = new FormGroup({
+  public createTaskForm: FormGroup = new FormGroup({
     title: this.titleControl,
     description: this.descriptionControl,
     priority: this.priorityControl,
   });
 
-  onSubmit() {
+  public onSubmit() {
     if (this.createTaskForm.valid) {
       this.taskService.createTask(this.createTaskForm.value).subscribe({
         next: (response) => {
@@ -69,7 +69,7 @@ export class CreateTaskDialogComponent {
     }
   }
 
-  onCancel() {
+  public onCancel() {
     this.dialogRef.close();
   }
 }

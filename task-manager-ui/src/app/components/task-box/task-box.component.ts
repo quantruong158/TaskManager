@@ -41,7 +41,7 @@ export class TaskBoxComponent {
 
   constructor(private dialog: MatDialog) {}
 
-  openDetailsDialog() {
+  public openDetailsDialog() {
     const dialogRef = this.dialog.open(TaskDetailsDialogComponent, {
       minWidth: '950px',
       minHeight: 'auto',

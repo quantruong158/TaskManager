@@ -65,14 +65,14 @@ export class UpdateUserDialogComponent {
   );
   public isActiveControl: FormControl = new FormControl(true);
 
-  updateUserForm: FormGroup = new FormGroup({
+  public updateUserForm: FormGroup = new FormGroup({
     name: this.nameControl,
     email: this.emailControl,
     roleIds: this.roleIdsControl,
     isActive: this.isActiveControl,
   });
 
-  onSubmit(): void {
+  public onSubmit(): void {
     if (this.updateUserForm.valid) {
       const result = {
         ...this.updateUserForm.value,
