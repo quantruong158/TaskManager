@@ -60,6 +60,11 @@ export class SideBarComponent implements OnChanges {
         label: 'Login Log',
         route: '/admin/login-log',
       },
+      {
+        icon: 'description',
+        label: 'Activity Log',
+        route: '/admin/activity-log',
+      },
       { icon: 'settings', label: 'System Settings', route: '/admin/settings' },
     ];
 

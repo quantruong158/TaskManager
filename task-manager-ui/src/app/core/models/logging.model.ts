@@ -20,3 +20,18 @@ export interface LoginLog {
   userAgent: string;
   attemptIp: string;
 }
+
+export interface ActivityLog {
+  logId: number;
+  user: UserLog;
+  action: string;
+  targetTable: string;
+  targetId: number;
+  timestamp: Date;
+}
+
+export interface UserLog {
+  userId: number;
+  name: string;
+  email: string;
+}

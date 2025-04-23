@@ -47,6 +47,13 @@ export const routes: Routes = [
                 (m) => m.LoginLogComponent
               ),
           },
+          {
+            path: 'activity-log',
+            loadComponent: () =>
+              import('./pages/admin/activity-log/activity-log.component').then(
+                (m) => m.ActivityLogComponent
+              ),
+          },
         ],
       },
       {

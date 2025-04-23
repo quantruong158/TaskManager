@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { LoginLog, TaskStatusLog } from '../models/logging.model';
+import { ActivityLog, LoginLog, TaskStatusLog } from '../models/logging.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -18,5 +18,9 @@ export class LoggingService {
 
   getLoginLog(): Observable<LoginLog[]> {
     return this.http.get<LoginLog[]>(`${this.apiUrl}/login`);
+  }
+
+  getActivityLog(): Observable<ActivityLog[]> {
+    return this.http.get<ActivityLog[]>(`${this.apiUrl}/activity`);
   }
 }
