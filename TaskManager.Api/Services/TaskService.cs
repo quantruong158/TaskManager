@@ -15,6 +15,8 @@ namespace TaskManager.Api.Services
         Task UpdateTaskAsync(int id, WorkTask task, int userId);
         Task DeleteTaskAsync(int id);
         Task ChangeTaskStatusAsync(int id, int newStatusId, int userId);
+        Task<int> GetTotalNumberOfTasks();
+        Task<TaskCountResponseDto> GetNumberOfTasksOfEachStatus();
     }
 
     public class TaskService : ITaskService
@@ -26,6 +28,30 @@ namespace TaskManager.Api.Services
         {
             _unitOfWork = unitOfWork;
             _loggingService = loggingService;
+        }
+
+        public async Task<TaskCountResponseDto> GetNumberOfTasksOfEachStatus()
+        {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+            var sql = @"
+                SELECT s.StatusId, s.Name as StatusName, COUNT(t.TaskId) as TaskCount
+                FROM Statuses s
+                LEFT JOIN Tasks t ON t.StatusId = s.StatusId
+                GROUP BY s.StatusId, s.Name, s.[Order]
+                ORDER BY s.[Order]";
+            var taskCounts = await connection.QueryAsync<TaskCountByStatusDto>(sql);
+            return new TaskCountResponseDto { TotalCount = taskCounts.Sum(t => t.TaskCount), TaskCounts = taskCounts };
+        }
+
+        public async Task<int> GetTotalNumberOfTasks()
+        {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
+            var sql = "SELECT COUNT(*) FROM Tasks";
+            var totalCount = await connection.ExecuteScalarAsync<int>(sql);
+            return totalCount;
         }
 
         public async Task<IEnumerable<TaskResponseDto>> GetAllTasksAsync()

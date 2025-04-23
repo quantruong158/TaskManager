@@ -23,6 +23,7 @@ namespace TaskManager.Api.Services
         Task<int> CreateUserAsync(User user, string password, List<int> roleIds);
         Task UpdateUserAsync(int id, User user, List<int> roleIds);
         Task DeleteUserAsync(int id);
+        Task<int> GetTotalNumberOfUsers();
     }
 
     public class UserService : IUserService
@@ -34,6 +35,16 @@ namespace TaskManager.Api.Services
         {
             _unitOfWork = unitOfWork;
             _authService = authService;
+        }
+
+        public async Task<int> GetTotalNumberOfUsers()
+        {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+
+            var sql = "SELECT COUNT(*) FROM Users";
+            var totalCount = await connection.ExecuteScalarAsync<int>(sql);
+            return totalCount;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersWithRolesAsync()

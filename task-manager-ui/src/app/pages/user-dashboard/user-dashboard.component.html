@@ -1,1 +1,30 @@
-<p>user-dashboard works!</p>
+<div class="dashboard-container">
+  @if (isLoading) {
+  <div class="loading">Loading statistics...</div>
+  } @if (error) {
+  <div class="error">{{ error }}</div>
+  } @if (taskStats && !isLoading) {
+  <div class="stats-container">
+    <div class="total-stats">
+      <h3>Total Tasks</h3>
+      <div class="total-count text-primary">{{ taskStats.totalCount }}</div>
+    </div>
+
+    <div class="status-stats">
+      <div class="status-grid">
+        @for (stat of taskStats.taskCounts; track stat.statusName) {
+        <div class="status-card">
+          <div class="status-name">{{ stat.statusName }}</div>
+          <div class="status-count">{{ stat.taskCount }}</div>
+          @if (taskStats.totalCount > 0) {
+          <div class="status-percentage">
+            {{ ((stat.taskCount / taskStats.totalCount) * 100).toFixed(1) }}%
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>

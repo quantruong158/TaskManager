@@ -33,3 +33,12 @@ export interface UpdateTaskRequest {
 export interface ChangeTaskStatusRequest {
   newStatusId: number;
 }
+
+export interface TaskCountResponse {
+  totalCount: number;
+  taskCounts: {
+    statusId: number;
+    statusName: string;
+    taskCount: number;
+  }[];
+}

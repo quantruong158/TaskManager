@@ -47,4 +47,17 @@
     {
         public required int NewStatusId { get; set; }
     }
+
+    public class TaskCountByStatusDto
+    {
+        public int StatusId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+        public int TaskCount { get; set; }
+    }
+
+    public class  TaskCountResponseDto
+    {
+        public int TotalCount { get; set; }
+        public IEnumerable<TaskCountByStatusDto> TaskCounts { get; set; } = [];
+    }
 }
