@@ -16,7 +16,8 @@ namespace TaskManager.Api.Services
         Task DeleteTaskAsync(int id);
         Task ChangeTaskStatusAsync(int id, int newStatusId, int userId);
         Task<int> GetTotalNumberOfTasks();
-        Task<TaskCountResponseDto> GetNumberOfTasksOfEachStatus();
+        Task<TaskCountByStatusResponseDto> GetNumberOfTasksByStatus();
+        Task<TaskCountByPriorityResponseDto> GetNumberOfTasksByPriority();
     }
 
     public class TaskService : ITaskService
@@ -30,7 +31,7 @@ namespace TaskManager.Api.Services
             _loggingService = loggingService;
         }
 
-        public async Task<TaskCountResponseDto> GetNumberOfTasksOfEachStatus()
+        public async Task<TaskCountByStatusResponseDto> GetNumberOfTasksByStatus()
         {
             using var connection = _unitOfWork.Connection;
             await connection.OpenAsync();
@@ -41,7 +42,19 @@ namespace TaskManager.Api.Services
                 GROUP BY s.StatusId, s.Name, s.[Order]
                 ORDER BY s.[Order]";
             var taskCounts = await connection.QueryAsync<TaskCountByStatusDto>(sql);
-            return new TaskCountResponseDto { TotalCount = taskCounts.Sum(t => t.TaskCount), TaskCounts = taskCounts };
+            return new TaskCountByStatusResponseDto { TotalCount = taskCounts.Sum(t => t.TaskCount), TaskCounts = taskCounts };
+        }
+
+        public async Task<TaskCountByPriorityResponseDto> GetNumberOfTasksByPriority()
+        {
+            using var connection = _unitOfWork.Connection;
+            await connection.OpenAsync();
+            var sql = @"
+                SELECT t.Priority, COUNT(t.TaskId) as TaskCount
+                FROM Tasks t
+                GROUP BY t.Priority";
+            var taskCounts = await connection.QueryAsync<TaskCountByPriorityDto>(sql);
+            return new TaskCountByPriorityResponseDto { TotalCount = taskCounts.Sum(t => t.TaskCount), TaskCounts = taskCounts };
         }
 
         public async Task<int> GetTotalNumberOfTasks()

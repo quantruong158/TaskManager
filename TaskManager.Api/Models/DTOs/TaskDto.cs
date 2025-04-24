@@ -55,9 +55,20 @@
         public int TaskCount { get; set; }
     }
 
-    public class  TaskCountResponseDto
+    public class  TaskCountByStatusResponseDto
     {
         public int TotalCount { get; set; }
         public IEnumerable<TaskCountByStatusDto> TaskCounts { get; set; } = [];
+    }
+    public class TaskCountByPriorityDto
+    {
+        public string Priority { get; set; } = string.Empty;
+        public int TaskCount { get; set; }
+    }
+    
+    public class TaskCountByPriorityResponseDto
+    {
+        public int TotalCount { get; set; }
+        public IEnumerable<TaskCountByPriorityDto> TaskCounts { get; set; } = [];
     }
 }

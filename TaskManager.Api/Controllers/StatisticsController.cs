@@ -26,11 +26,57 @@ namespace TaskManager.Api.Controllers
         }
 
         [HttpGet("tasks/count")]
-        public async Task<ActionResult<TaskCountResponseDto>> GetTaskCount()
+        public async Task<ActionResult<ChartDataDto>> GetTaskCount(string groupBy = "status")
         {
-            var count = await _taskService.GetNumberOfTasksOfEachStatus();
+            if (groupBy != "status" && groupBy != "priority")
+            {
+                return BadRequest("Invalid groupBy parameter. Use 'status' or 'priority'.");
+            }
 
-            return Ok(count);
+            ChartDataDto chartData;
+
+            if (groupBy == "status")
+            {
+                var countByStatus = await _taskService.GetNumberOfTasksByStatus();
+
+                chartData = new ChartDataDto
+                {
+                    ChartType = "pie",
+                    Title = $"Tasks by {char.ToUpper(groupBy[0]) + groupBy[1..]}",
+                    Labels = countByStatus.TaskCounts.Select(tc => tc.StatusName).ToList(),
+                    Series = new List<DataSeriesDto>
+                    {
+                        new DataSeriesDto
+                        {
+                            Name = "Tasks",
+                            Data = countByStatus.TaskCounts.Select(tc => (double)tc.TaskCount).ToList(),
+                            Color = null
+                        }
+                    }
+                };
+
+                return Ok(chartData);
+            }
+
+            var countByPriority = await _taskService.GetNumberOfTasksByPriority();
+
+            chartData = new ChartDataDto
+            {
+                ChartType = "bar",
+                Title = $"Tasks by {char.ToUpper(groupBy[0]) + groupBy[1..]}",
+                Labels = countByPriority.TaskCounts.Select(tc => tc.Priority).ToList(),
+                Series = new List<DataSeriesDto>
+                {
+                    new DataSeriesDto
+                    {
+                        Name = "Tasks",
+                        Data = countByPriority.TaskCounts.Select(tc => (double)tc.TaskCount).ToList(),
+                        Color = null
+                    }
+                }
+            };
+
+            return Ok(chartData);
         }
     }
 }

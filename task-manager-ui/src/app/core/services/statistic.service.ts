@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { TaskCountResponse } from '../models/task.model';
+import { ChartDataResponse } from '../models/chart.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,9 @@ export class StatisticService {
 
   constructor(private http: HttpClient) {}
 
-  getTaskCount(): Observable<TaskCountResponse> {
-    return this.http.get<TaskCountResponse>(`${this.apiUrl}/tasks/count`);
+  getTaskCount(groupBy: string): Observable<ChartDataResponse> {
+    return this.http.get<ChartDataResponse>(
+      `${this.apiUrl}/tasks/count?groupBy=${groupBy}`
+    );
   }
 }

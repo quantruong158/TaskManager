@@ -11,9 +11,11 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideCharts(withDefaultRegisterables()),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },

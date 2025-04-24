@@ -2,28 +2,28 @@
   @if (isLoading) {
   <div class="loading">Loading statistics...</div>
   } @if (error) {
-  <div class="error">{{ error }}</div>
-  } @if (taskStats && !isLoading) {
-  <div class="stats-container">
-    <div class="total-stats">
-      <h3>Total Tasks</h3>
-      <div class="total-count text-primary">{{ taskStats.totalCount }}</div>
+  <div class="error">
+    {{ error }}
+  </div>
+  } @if (!isLoading && !error) {
+  <div class="charts">
+    <div class="chart-container">
+      <canvas
+        baseChart
+        [data]="charts.status.data"
+        [options]="charts.status.options"
+        [type]="charts.status.type"
+      >
+      </canvas>
     </div>
-
-    <div class="status-stats">
-      <div class="status-grid">
-        @for (stat of taskStats.taskCounts; track stat.statusName) {
-        <div class="status-card">
-          <div class="status-name">{{ stat.statusName }}</div>
-          <div class="status-count">{{ stat.taskCount }}</div>
-          @if (taskStats.totalCount > 0) {
-          <div class="status-percentage">
-            {{ ((stat.taskCount / taskStats.totalCount) * 100).toFixed(1) }}%
-          </div>
-          }
-        </div>
-        }
-      </div>
+    <div class="chart-container">
+      <canvas
+        baseChart
+        [data]="charts.priority.data"
+        [options]="charts.priority.options"
+        [type]="charts.priority.type"
+      >
+      </canvas>
     </div>
   </div>
   }

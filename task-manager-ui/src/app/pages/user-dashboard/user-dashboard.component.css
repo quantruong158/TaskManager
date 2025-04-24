@@ -1,6 +1,5 @@
 .dashboard-container {
   padding: 20px;
-  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -87,4 +86,21 @@ h2 {
 .status-percentage {
   font-size: 14px;
   color: #6c757d;
+}
+
+.chart-container {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 200px;
+  position: relative;
+  flex: 1;
+}
+
+.charts {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
