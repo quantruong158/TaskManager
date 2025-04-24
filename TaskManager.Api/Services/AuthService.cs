@@ -125,19 +125,16 @@ namespace TaskManager.Api.Services
 
         public async Task<(User? User, RefreshToken? RefreshToken)> ValidateRefreshTokenAsync(string token)
         {
-            using var connection = _unitOfWork.Connection;
-            await connection.OpenAsync();
-
-            var refreshToken = await connection.QueryFirstOrDefaultAsync<RefreshToken>(
+            var refreshToken = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<RefreshToken>(
                 @"SELECT * FROM RefreshTokens WHERE Token = @Token",
-                new { Token = token });
+                new { Token = token }, _unitOfWork.Transaction);
 
             if (refreshToken == null)
                 return (null, null);
 
-            var user = await connection.QueryFirstOrDefaultAsync<User>(
+            var user = await _unitOfWork.Connection.QueryFirstOrDefaultAsync<User>(
                 @"SELECT * FROM Users WHERE UserId = @UserId",
-                new { refreshToken.UserId });
+                new { refreshToken.UserId }, _unitOfWork.Transaction);
 
             return (user, refreshToken);
         }
