@@ -51,98 +51,66 @@ namespace TaskManager.Api.Services
 
         public async Task<int> CreateStatusAsync(Status status)
         {
-            await _unitOfWork.BeginAsync();
-            try
-            {
-                var sql = @"
-                    INSERT INTO Statuses (Name, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsActive, [Order])
-                    VALUES (@Name, @CreatedAt, @CreatedBy, @CreatedAt, @CreatedBy, @IsActive, @Order);
-                    SELECT SCOPE_IDENTITY();";
+            var sql = @"
+                INSERT INTO Statuses (Name, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsActive, [Order])
+                VALUES (@Name, @CreatedAt, @CreatedBy, @CreatedAt, @CreatedBy, @IsActive, @Order);
+                SELECT SCOPE_IDENTITY();";
 
-                var parameters = new
-                {
-                    status.Name,
-                    status.CreatedAt,
-                    status.CreatedBy,
-                    IsActive = true,
-                    status.Order
-                };
-
-                var statusId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
-                await _unitOfWork.CommitAsync();
-                return statusId;
-            }
-            catch
+            var parameters = new
             {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+                status.Name,
+                status.CreatedAt,
+                status.CreatedBy,
+                IsActive = true,
+                status.Order
+            };
+
+            var statusId = await _unitOfWork.Connection.ExecuteScalarAsync<int>(sql, parameters, _unitOfWork.Transaction);
+            return statusId;
         }
 
         public async Task UpdateStatusAsync(int id, Status status)
         {
-            await _unitOfWork.BeginAsync();
-            try
+            const string sql = @"
+                UPDATE Statuses 
+                SET Name = @Name, 
+                    UpdatedAt = @UpdatedAt,
+                    UpdatedBy = @UpdatedBy,
+                    IsActive = @IsActive,
+                    [Order] = @Order
+                WHERE StatusId = @StatusId";
+
+            var parameters = new
             {
-                const string sql = @"
-                    UPDATE Statuses 
-                    SET Name = @Name, 
-                        UpdatedAt = @UpdatedAt,
-                        UpdatedBy = @UpdatedBy,
-                        IsActive = @IsActive,
-                        [Order] = @Order
-                    WHERE StatusId = @StatusId";
+                StatusId = id,
+                status.Name,
+                status.UpdatedAt,
+                status.UpdatedBy,
+                status.IsActive,
+                status.Order
+            };
 
-                var parameters = new
-                {
-                    StatusId = id,
-                    status.Name,
-                    status.UpdatedAt,
-                    status.UpdatedBy,
-                    status.IsActive,
-                    status.Order
-                };
+            var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
 
-                var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
-
-                if (rowsAffected == 0)
-                    throw new AppException($"Status with ID {id} not found");
-
-                await _unitOfWork.CommitAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+            if (rowsAffected == 0)
+                throw new AppException($"Status with ID {id} not found");
         }
 
         public async Task DeleteStatusAsync(int id)
         {
-            await _unitOfWork.BeginAsync();
-            try
+            const string sql = @"
+                DELETE FROM Statuses
+                WHERE StatusId = @StatusId";
+
+            var parameters = new
             {
-                const string sql = @"
-                    DELETE FROM Statuses
-                    WHERE StatusId = @StatusId";
+                StatusId = id
+            };
 
-                var parameters = new
-                {
-                    StatusId = id
-                };
+            var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
 
-                var rowsAffected = await _unitOfWork.Connection.ExecuteAsync(sql, parameters, _unitOfWork.Transaction);
-
-                if (rowsAffected == 0)
-                    throw new AppException($"Status with ID {id} not found");
-
-                await _unitOfWork.CommitAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+            if (rowsAffected == 0)
+                throw new AppException($"Status with ID {id} not found");
         }
     }
 }

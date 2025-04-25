@@ -12,9 +12,11 @@ export interface Status {
 export interface CreateStatusRequest {
   name: string;
   isActive: boolean;
+  order: number;
 }
 
 export interface UpdateStatusRequest {
   name: string;
   isActive: boolean;
+  order: number;
 }

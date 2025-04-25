@@ -49,6 +49,7 @@ public class StatusController : ControllerBase
             {
                 Name = req.Name,
                 IsActive = req.IsActive,
+                Order = req.Order,
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = User.GetUserId()
             };
@@ -86,6 +87,7 @@ public class StatusController : ControllerBase
             {
                 StatusId = id,
                 Name = req.Name,
+                Order = req.Order,
                 IsActive = req.IsActive,
                 UpdatedAt = DateTime.UtcNow,
                 UpdatedBy = User.GetUserId()

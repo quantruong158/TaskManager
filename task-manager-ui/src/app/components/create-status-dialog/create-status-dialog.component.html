@@ -14,6 +14,15 @@
       <mat-error>Status name must be at least 2 characters long</mat-error>
       }
     </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Order</mat-label>
+      <input matInput [formControl]="orderControl" placeholder="1" />
+      @if (nameControl.errors?.['required']) {
+      <mat-error>Order is required</mat-error>
+      }
+    </mat-form-field>
+
     <ng-container>
       <mat-checkbox [formControl]="isActiveControl">Is Active</mat-checkbox>
     </ng-container>

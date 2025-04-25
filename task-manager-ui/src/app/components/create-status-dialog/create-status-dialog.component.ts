@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { StatusService } from '../../core/services/status.service';
 import { CreateStatusRequest } from '../../core/models/status.model';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-status-dialog',
@@ -36,15 +37,22 @@ export class CreateStatusDialogComponent {
   ]);
 
   public isActiveControl: FormControl = new FormControl(true);
+  public orderControl: FormControl = new FormControl(0, [
+    Validators.required,
+    Validators.min(-9999),
+    Validators.max(9999),
+  ]);
 
   statusForm = new FormGroup({
     name: this.nameControl,
     isActive: this.isActiveControl,
+    order: this.orderControl,
   });
 
   constructor(
     private dialogRef: MatDialogRef<CreateStatusDialogComponent>,
-    private statusService: StatusService
+    private statusService: StatusService,
+    private toastr: ToastrService
   ) {}
 
   onSubmit() {
@@ -53,9 +61,11 @@ export class CreateStatusDialogComponent {
         .createStatus(this.statusForm.value as CreateStatusRequest)
         .subscribe({
           next: (response) => {
+            this.toastr.success('Status created successfully', 'SUCCESS');
             this.dialogRef.close(response);
           },
           error: (error) => {
+            this.toastr.error('Error creating status', 'ERROR');
             console.error('Error creating status:', error);
           },
         });

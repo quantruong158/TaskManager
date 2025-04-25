@@ -8,12 +8,14 @@ namespace TaskManager.Api.Models.DTOs
     public class CreateStatusRequestDto
     {
         public required string Name { get; set; }
+        public int Order { get; set; }
         public bool IsActive { get; set; }
     }
 
     public class UpdateStatusRequestDto
     {
         public required string Name { get; set; }
+        public int Order { get; set; }
         public bool IsActive { get; set; }
     }
 
